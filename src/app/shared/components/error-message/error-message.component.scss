@@ -1,0 +1,378 @@
+.error-container {
+  width: 100%;
+
+  &.position-top {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: auto;
+    min-width: 300px;
+    max-width: 600px;
+  }
+
+  &.position-bottom {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: auto;
+    min-width: 300px;
+    max-width: 600px;
+  }
+
+  &.position-inline {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+}
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid;
+  margin-bottom: 0.75rem;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &.compact {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+
+    .error-title {
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .error-message-text {
+      font-size: 0.875rem;
+    }
+
+    .error-icon i {
+      font-size: 1rem;
+    }
+  }
+
+  // Error type styles
+  &.error-error {
+    background: rgba(254, 242, 242, 0.95);
+    border-left-color: #f56565;
+    color: #742a2a;
+
+    .error-icon {
+      color: #f56565;
+    }
+
+    .error-action-btn {
+      background: #f56565;
+      color: white;
+
+      &:hover {
+        background: #e53e3e;
+      }
+    }
+  }
+
+  &.error-warning {
+    background: rgba(255, 251, 235, 0.95);
+    border-left-color: #ed8936;
+    color: #7c2d12;
+
+    .error-icon {
+      color: #ed8936;
+    }
+
+    .error-action-btn {
+      background: #ed8936;
+      color: white;
+
+      &:hover {
+        background: #dd6b20;
+      }
+    }
+  }
+
+  &.error-info {
+    background: rgba(235, 248, 255, 0.95);
+    border-left-color: #3182ce;
+    color: #1a365d;
+
+    .error-icon {
+      color: #3182ce;
+    }
+
+    .error-action-btn {
+      background: #3182ce;
+      color: white;
+
+      &:hover {
+        background: #2c5aa0;
+      }
+    }
+  }
+
+  &.error-success {
+    background: rgba(240, 253, 244, 0.95);
+    border-left-color: #48bb78;
+    color: #22543d;
+
+    .error-icon {
+      color: #48bb78;
+    }
+
+    .error-action-btn {
+      background: #48bb78;
+      color: white;
+
+      &:hover {
+        background: #38a169;
+      }
+    }
+  }
+
+  // Animation
+  &.fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+.error-content {
+  flex: 1;
+  min-width: 0;
+
+  .error-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.4;
+  }
+
+  .error-message-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0 0 0.75rem 0;
+    word-wrap: break-word;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .error-details {
+    margin-top: 0.75rem;
+
+    details {
+      summary {
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 0.5rem 0;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        &:focus {
+          outline: 2px solid currentColor;
+          outline-offset: 2px;
+        }
+      }
+
+      &[open] summary {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    .error-details-text {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: auto;
+      margin: 0;
+    }
+  }
+
+  .error-action-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.75rem;
+
+    &:focus {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+}
+
+.error-dismiss-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.15);
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    opacity: 1;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  i {
+    font-size: 0.875rem;
+  }
+}
+
+.no-errors {
+  display: none;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .error-container {
+    &.position-top,
+    &.position-bottom {
+      left: 1rem;
+      right: 1rem;
+      transform: none;
+      width: auto;
+      min-width: auto;
+    }
+  }
+
+  .error-message {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+
+    &.compact {
+      padding: 0.5rem 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .error-content {
+      .error-title {
+        font-size: 0.9rem;
+      }
+
+      .error-message-text {
+        font-size: 0.85rem;
+      }
+    }
+
+    .error-dismiss-btn {
+      width: 28px;
+      height: 28px;
+
+      i {
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .error-message {
+    border-width: 2px;
+    border-style: solid;
+
+    &.error-error {
+      border-color: #f56565;
+    }
+
+    &.error-warning {
+      border-color: #ed8936;
+    }
+
+    &.error-info {
+      border-color: #3182ce;
+    }
+
+    &.error-success {
+      border-color: #48bb78;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .error-message {
+    &.fade-in {
+      animation: none;
+    }
+  }
+
+  .error-dismiss-btn {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}

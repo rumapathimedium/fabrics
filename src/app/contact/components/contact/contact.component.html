@@ -1,0 +1,315 @@
+<div class="contact-container">
+  <!-- Header Section -->
+  <div class="contact-header">
+    <h1>Contact Us</h1>
+    <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+  </div>
+
+  <!-- Success Message -->
+  <div class="alert alert-success" *ngIf="showSuccessMessage && submissionResult?.success">
+    <div class="alert-content">
+      <i class="fas fa-check-circle"></i>
+      <div class="message-content">
+        <h4>Message Sent Successfully!</h4>
+        <p>{{ submissionResult?.message }}</p>
+        <div class="ticket-info" *ngIf="submissionResult?.ticketId">
+          <p><strong>Ticket ID:</strong> {{ submissionResult?.ticketId }}</p>
+          <p><strong>Expected Response:</strong> {{ submissionResult?.estimatedResponse }}</p>
+        </div>
+      </div>
+      <button class="close-btn" (click)="dismissSuccessMessage()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div class="alert alert-error" *ngIf="showErrorMessage && submissionResult && !submissionResult.success">
+    <div class="alert-content">
+      <i class="fas fa-exclamation-triangle"></i>
+      <div class="message-content">
+        <h4>Error Sending Message</h4>
+        <p>{{ submissionResult.message }}</p>
+      </div>
+      <button class="close-btn" (click)="dismissErrorMessage()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="contact-content">
+    <!-- Contact Form Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>Send us a Message</h2>
+        <p>Fill out the form below and we'll get back to you as soon as possible.</p>
+      </div>
+
+      <!-- Category Selection -->
+      <div class="category-selection">
+        <h3>What can we help you with?</h3>
+        <div class="categories-grid">
+          <div 
+            class="category-card" 
+            *ngFor="let category of categories; trackBy: trackByCategoryId"
+            [class.selected]="contactForm.get('category')?.value === category.id"
+            (click)="selectCategory(category.id)"
+          >
+            <i [class]="category.icon"></i>
+            <h4>{{ category.name }}</h4>
+            <p>{{ category.description }}</p>
+          </div>
+        </div>
+        <div class="field-error" *ngIf="isFieldInvalid('category')">
+          {{ getFieldError('category') }}
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+        <!-- Personal Information -->
+        <div class="form-section-title">
+          <h3>Your Information</h3>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input 
+              type="text" 
+              id="firstName"
+              formControlName="firstName"
+              class="form-control"
+              [class.error]="isFieldInvalid('firstName')"
+              placeholder="Enter your first name"
+            >
+            <div class="field-error" *ngIf="isFieldInvalid('firstName')">
+              {{ getFieldError('firstName') }}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input 
+              type="text" 
+              id="lastName"
+              formControlName="lastName"
+              class="form-control"
+              [class.error]="isFieldInvalid('lastName')"
+              placeholder="Enter your last name"
+            >
+            <div class="field-error" *ngIf="isFieldInvalid('lastName')">
+              {{ getFieldError('lastName') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input 
+              type="email" 
+              id="email"
+              formControlName="email"
+              class="form-control"
+              [class.error]="isFieldInvalid('email')"
+              placeholder="Enter your email address"
+            >
+            <div class="field-error" *ngIf="isFieldInvalid('email')">
+              {{ getFieldError('email') }}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input 
+              type="tel" 
+              id="phone"
+              formControlName="phone"
+              class="form-control"
+              [class.error]="isFieldInvalid('phone')"
+              placeholder="Enter your phone number"
+            >
+            <div class="field-error" *ngIf="isFieldInvalid('phone')">
+              {{ getFieldError('phone') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Details -->
+        <div class="form-section-title">
+          <h3>Message Details</h3>
+        </div>
+
+        <div class="form-group">
+          <label for="subject">Subject *</label>
+          <input 
+            type="text" 
+            id="subject"
+            formControlName="subject"
+            class="form-control"
+            [class.error]="isFieldInvalid('subject')"
+            placeholder="Brief description of your inquiry"
+          >
+          <div class="field-error" *ngIf="isFieldInvalid('subject')">
+            {{ getFieldError('subject') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="priority">Priority</label>
+          <select 
+            id="priority"
+            formControlName="priority"
+            class="form-control"
+          >
+            <option value="low">Low - General inquiry</option>
+            <option value="medium">Medium - Standard support</option>
+            <option value="high">High - Urgent issue</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Message *</label>
+          <textarea 
+            id="message"
+            formControlName="message"
+            class="form-control"
+            [class.error]="isFieldInvalid('message')"
+            placeholder="Please provide details about your inquiry..."
+            rows="6"
+          ></textarea>
+          <div class="character-count" [class]="getCharacterCountClass()">
+            {{ getCharacterCount() }}/1000 characters
+          </div>
+          <div class="field-error" *ngIf="isFieldInvalid('message')">
+            {{ getFieldError('message') }}
+          </div>
+        </div>
+
+        <!-- Terms Agreement -->
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              formControlName="agreeToTerms"
+              [class.error]="isFieldInvalid('agreeToTerms')"
+            >
+            <span class="checkmark"></span>
+            I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a> *
+          </label>
+          <div class="field-error" *ngIf="isFieldInvalid('agreeToTerms')">
+            You must agree to the terms and conditions
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="submit-btn"
+            [disabled]="contactForm.invalid || isSubmitting"
+          >
+            <i class="fas fa-paper-plane" *ngIf="!isSubmitting"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+            {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Contact Information -->
+      <div class="info-card" *ngIf="contactInfo">
+        <h3>Get in Touch</h3>
+        <div class="contact-methods">
+          <div class="contact-method">
+            <i class="fas fa-map-marker-alt"></i>
+            <div class="method-details">
+              <strong>Visit Us</strong>
+              <p>{{ contactInfo.address }}</p>
+              <p>{{ contactInfo.city }}, {{ contactInfo.state }} {{ contactInfo.zipCode }}</p>
+              <p>{{ contactInfo.country }}</p>
+            </div>
+          </div>
+          
+          <div class="contact-method">
+            <i class="fas fa-phone"></i>
+            <div class="method-details">
+              <strong>Call Us</strong>
+              <p>{{ contactInfo.phone }}</p>
+            </div>
+          </div>
+          
+          <div class="contact-method">
+            <i class="fas fa-envelope"></i>
+            <div class="method-details">
+              <strong>Email Us</strong>
+              <p>{{ contactInfo.email }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Hours -->
+        <div class="business-hours">
+          <h4>Business Hours</h4>
+          <div class="hours-list">
+            <div class="hour-item">
+              <span>Monday - Friday</span>
+              <span>{{ contactInfo.businessHours.monday }}</span>
+            </div>
+            <div class="hour-item">
+              <span>Saturday</span>
+              <span>{{ contactInfo.businessHours.saturday }}</span>
+            </div>
+            <div class="hour-item">
+              <span>Sunday</span>
+              <span>{{ contactInfo.businessHours.sunday }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="faq-card">
+        <div class="faq-header" (click)="toggleFAQs()">
+          <h3>Frequently Asked Questions</h3>
+          <i class="fas" [class.fa-chevron-down]="!showFAQs" [class.fa-chevron-up]="showFAQs"></i>
+        </div>
+        
+        <div class="faq-content" *ngIf="showFAQs">
+          <div class="faq-search">
+            <input 
+              type="text" 
+              placeholder="Search FAQs..."
+              [(ngModel)]="searchQuery"
+              (input)="searchFAQs()"
+              class="search-input"
+            >
+            <i class="fas fa-search search-icon"></i>
+          </div>
+          
+          <div class="faq-list">
+            <div 
+              class="faq-item" 
+              *ngFor="let faq of filteredFAQs; trackBy: trackByFAQId"
+            >
+              <h5>{{ faq.question }}</h5>
+              <p>{{ faq.answer }}</p>
+              <div class="faq-actions">
+                <button 
+                  class="helpful-btn"
+                  (click)="markFAQHelpful(faq.id)"
+                >
+                  <i class="fas fa-thumbs-up"></i>
+                  Helpful ({{ faq.helpful }})
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

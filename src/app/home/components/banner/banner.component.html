@@ -1,0 +1,144 @@
+<div class="banner-container" 
+     tabindex="0"
+     (keydown)="onKeyDown($event)"
+     (mouseenter)="pauseAutoSlide()"
+     (mouseleave)="resumeAutoSlide()">
+
+  <!-- Main Banner Slider -->
+  <div class="banner-slider">
+    <!-- Slides -->
+    <div class="slides-container"
+         (touchstart)="onTouchStart($event)"
+         (touchend)="onTouchEnd($event)">
+      
+      <div *ngFor="let slide of bannerSlides; let i = index; trackBy: trackBySlideId"
+           class="slide"
+           [class.active]="i === currentSlideIndex"
+           [style.background-color]="slide.backgroundColor">
+        
+        <!-- Background Image -->
+        <div class="slide-background">
+          <picture>
+            <source media="(max-width: 768px)" [srcset]="slide.mobileImage">
+            <img [src]="slide.image" 
+                 [alt]="slide.title"
+                 class="slide-image"
+                 loading="lazy">
+          </picture>
+          <div class="slide-overlay"></div>
+        </div>
+
+        <!-- Slide Content -->
+        <div class="slide-content" [style.color]="slide.textColor">
+          <div class="content-wrapper">
+            <h2 class="slide-subtitle" 
+                [style.animation-delay]="i === currentSlideIndex ? '0.2s' : '0s'">
+              {{ slide.subtitle }}
+            </h2>
+            <h1 class="slide-title"
+                [style.animation-delay]="i === currentSlideIndex ? '0.4s' : '0s'">
+              {{ slide.title }}
+            </h1>
+            <p class="slide-description"
+               [style.animation-delay]="i === currentSlideIndex ? '0.6s' : '0s'">
+              {{ slide.description }}
+            </p>
+            <div class="slide-actions"
+                 [style.animation-delay]="i === currentSlideIndex ? '0.8s' : '0s'">
+              <a [routerLink]="slide.buttonLink" 
+                 class="cta-button"
+                 (click)="onSlideClick(slide)">
+                {{ slide.buttonText }}
+                <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="banner-controls">
+      <!-- Previous Button -->
+      <button class="nav-button nav-prev" 
+              (click)="prevSlide()"
+              aria-label="Previous slide">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <!-- Next Button -->
+      <button class="nav-button nav-next" 
+              (click)="nextSlide()"
+              aria-label="Next slide">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <!-- Play/Pause Button -->
+      <button class="play-pause-button" 
+              (click)="toggleAutoSlide()"
+              [attr.aria-label]="isPlaying ? 'Pause slideshow' : 'Play slideshow'">
+        <i class="fas" [class.fa-pause]="isPlaying" [class.fa-play]="!isPlaying"></i>
+      </button>
+    </div>
+
+    <!-- Dots Indicator -->
+    <div class="dots-indicator">
+      <button *ngFor="let slide of bannerSlides; let i = index"
+              class="dot"
+              [class.active]="i === currentSlideIndex"
+              (click)="goToSlide(i)"
+              [attr.aria-label]="'Go to slide ' + (i + 1)">
+      </button>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="getSlideProgress()"></div>
+    </div>
+  </div>
+
+  <!-- Featured Highlights -->
+  <div class="banner-highlights">
+    <div class="highlights-container">
+      <div class="highlight-item">
+        <div class="highlight-icon">
+          <i class="fas fa-shipping-fast"></i>
+        </div>
+        <div class="highlight-content">
+          <h3>Free Shipping</h3>
+          <p>On orders over $50</p>
+        </div>
+      </div>
+
+      <div class="highlight-item">
+        <div class="highlight-icon">
+          <i class="fas fa-undo-alt"></i>
+        </div>
+        <div class="highlight-content">
+          <h3>Easy Returns</h3>
+          <p>30-day return policy</p>
+        </div>
+      </div>
+
+      <div class="highlight-item">
+        <div class="highlight-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div class="highlight-content">
+          <h3>Secure Payment</h3>
+          <p>100% secure checkout</p>
+        </div>
+      </div>
+
+      <div class="highlight-item">
+        <div class="highlight-icon">
+          <i class="fas fa-headset"></i>
+        </div>
+        <div class="highlight-content">
+          <h3>24/7 Support</h3>
+          <p>Always here to help</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

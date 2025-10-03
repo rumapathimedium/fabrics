@@ -1,0 +1,330 @@
+<div class="payment-container">
+  <div class="payment-header">
+    <h2>Payment Information</h2>
+    <p>Complete your order by providing payment details</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading payment options...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-message" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="paymentForm" (ngSubmit)="processPayment()" *ngIf="!isLoading">
+    
+    <!-- Saved Payment Methods -->
+    <div class="section saved-payment-methods" *ngIf="paymentMethods.length > 0">
+      <h3 class="section-title">Saved Payment Methods</h3>
+      <div class="payment-methods-list">
+        <div 
+          class="payment-method-card" 
+          *ngFor="let method of paymentMethods; trackBy: trackByMethodId"
+          [class.selected]="selectedPaymentMethod?.id === method.id"
+          (click)="selectPaymentMethod(method)"
+        >
+          <div class="method-selector">
+            <input 
+              type="radio" 
+              [value]="method.id"
+              [checked]="selectedPaymentMethod?.id === method.id"
+              (change)="selectPaymentMethod(method)"
+            >
+          </div>
+          <div class="method-info">
+            <div class="method-icon">
+              <i [class]="getCardTypeIcon(method.type)"></i>
+            </div>
+            <div class="method-details">
+              <h4>{{ method.name || method.type | titlecase }}</h4>
+              <p *ngIf="method.lastFourDigits">•••• •••• •••• {{ method.lastFourDigits }}</p>
+              <p *ngIf="method.description">{{ method.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="divider">
+        <span>Or add a new payment method</span>
+      </div>
+    </div>
+
+    <!-- Payment Type Selection -->
+    <div class="section payment-type-section">
+      <h3 class="section-title">Payment Method</h3>
+      <div class="payment-types">
+        <div 
+          class="payment-type"
+          [class.selected]="paymentForm.get('paymentType')?.value === PAYMENT_TYPES.CREDIT_CARD"
+          (click)="selectPaymentType(PAYMENT_TYPES.CREDIT_CARD)"
+        >
+          <i class="fas fa-credit-card"></i>
+          <span>Credit Card</span>
+        </div>
+        <div 
+          class="payment-type"
+          [class.selected]="paymentForm.get('paymentType')?.value === PAYMENT_TYPES.DEBIT_CARD"
+          (click)="selectPaymentType(PAYMENT_TYPES.DEBIT_CARD)"
+        >
+          <i class="fas fa-credit-card"></i>
+          <span>Debit Card</span>
+        </div>
+        <div 
+          class="payment-type"
+          [class.selected]="paymentForm.get('paymentType')?.value === PAYMENT_TYPES.PAYPAL"
+          (click)="selectPaymentType(PAYMENT_TYPES.PAYPAL)"
+        >
+          <i class="fab fa-paypal"></i>
+          <span>PayPal</span>
+        </div>
+        <div 
+          class="payment-type"
+          [class.selected]="paymentForm.get('paymentType')?.value === PAYMENT_TYPES.APPLE_PAY"
+          (click)="selectPaymentType(PAYMENT_TYPES.APPLE_PAY)"
+        >
+          <i class="fab fa-apple-pay"></i>
+          <span>Apple Pay</span>
+        </div>
+        <div 
+          class="payment-type"
+          [class.selected]="paymentForm.get('paymentType')?.value === PAYMENT_TYPES.GOOGLE_PAY"
+          (click)="selectPaymentType(PAYMENT_TYPES.GOOGLE_PAY)"
+        >
+          <i class="fab fa-google-pay"></i>
+          <span>Google Pay</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Details (shown for card payments) -->
+    <div 
+      class="section card-details-section" 
+      *ngIf="paymentForm.get('paymentType')?.value === PAYMENT_TYPES.CREDIT_CARD || 
+             paymentForm.get('paymentType')?.value === PAYMENT_TYPES.DEBIT_CARD"
+    >
+      <h3 class="section-title">Card Information</h3>
+      
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="cardNumber">Card Number</label>
+          <input 
+            type="text" 
+            id="cardNumber"
+            class="form-control"
+            [class.error]="isFieldInvalid('cardNumber')"
+            placeholder="1234 5678 9012 3456"
+            maxlength="19"
+            (input)="formatCardNumber($event)"
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('cardNumber')">
+            {{ getFieldError('cardNumber') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="expiryMonth">Expiry Month</label>
+          <select 
+            id="expiryMonth"
+            class="form-control"
+            formControlName="expiryMonth"
+            [class.error]="isFieldInvalid('expiryMonth')"
+          >
+            <option value="">Month</option>
+            <option 
+              *ngFor="let month of getMonthOptions()" 
+              [value]="month"
+            >
+              {{ month.toString().padStart(2, '0') }}
+            </option>
+          </select>
+          <div class="error-text" *ngIf="isFieldInvalid('expiryMonth')">
+            {{ getFieldError('expiryMonth') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="expiryYear">Expiry Year</label>
+          <select 
+            id="expiryYear"
+            class="form-control"
+            formControlName="expiryYear"
+            [class.error]="isFieldInvalid('expiryYear')"
+          >
+            <option value="">Year</option>
+            <option 
+              *ngFor="let year of getYearOptions()" 
+              [value]="year"
+            >
+              {{ year }}
+            </option>
+          </select>
+          <div class="error-text" *ngIf="isFieldInvalid('expiryYear')">
+            {{ getFieldError('expiryYear') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cvv">CVV</label>
+          <input 
+            type="text" 
+            id="cvv"
+            class="form-control"
+            formControlName="cvv"
+            [class.error]="isFieldInvalid('cvv')"
+            placeholder="123"
+            maxlength="4"
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('cvv')">
+            {{ getFieldError('cvv') }}
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="cardholderName">Cardholder Name</label>
+          <input 
+            type="text" 
+            id="cardholderName"
+            class="form-control"
+            formControlName="cardholderName"
+            [class.error]="isFieldInvalid('cardholderName')"
+            placeholder="John Doe"
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('cardholderName')">
+            {{ getFieldError('cardholderName') }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Billing Address -->
+    <div 
+      class="section billing-address-section"
+      *ngIf="paymentForm.get('paymentType')?.value === PAYMENT_TYPES.CREDIT_CARD || 
+             paymentForm.get('paymentType')?.value === PAYMENT_TYPES.DEBIT_CARD"
+      formGroupName="billingAddress"
+    >
+      <h3 class="section-title">Billing Address</h3>
+      
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="street">Street Address</label>
+          <input 
+            type="text" 
+            id="street"
+            class="form-control"
+            formControlName="street"
+            [class.error]="isFieldInvalid('billingAddress.street')"
+            placeholder="123 Main Street"
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('billingAddress.street')">
+            Street address is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="city">City</label>
+          <input 
+            type="text" 
+            id="city"
+            class="form-control"
+            formControlName="city"
+            [class.error]="isFieldInvalid('billingAddress.city')"
+            placeholder="New York"
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('billingAddress.city')">
+            City is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="state">State</label>
+          <input 
+            type="text" 
+            id="state"
+            class="form-control"
+            formControlName="state"
+            [class.error]="isFieldInvalid('billingAddress.state')"
+            placeholder="NY"
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('billingAddress.state')">
+            State is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="zipCode">ZIP Code</label>
+          <input 
+            type="text" 
+            id="zipCode"
+            class="form-control"
+            formControlName="zipCode"
+            [class.error]="isFieldInvalid('billingAddress.zipCode')"
+            placeholder="10001"
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('billingAddress.zipCode')">
+            Valid ZIP code is required
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="country">Country</label>
+          <select 
+            id="country"
+            class="form-control"
+            formControlName="country"
+            [class.error]="isFieldInvalid('billingAddress.country')"
+          >
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="AU">Australia</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Payment Method -->
+    <div 
+      class="section save-payment-section"
+      *ngIf="paymentForm.get('paymentType')?.value === PAYMENT_TYPES.CREDIT_CARD || 
+             paymentForm.get('paymentType')?.value === PAYMENT_TYPES.DEBIT_CARD"
+    >
+      <label class="checkbox-label">
+        <input 
+          type="checkbox" 
+          formControlName="savePaymentMethod"
+        >
+        <span class="checkmark"></span>
+        Save this payment method for future orders
+      </label>
+    </div>
+
+    <!-- Payment Actions -->
+    <div class="section payment-actions">
+      <button 
+        type="submit" 
+        class="complete-order-btn"
+        [disabled]="paymentForm.invalid || isProcessing"
+      >
+        <span *ngIf="!isProcessing">Complete Order</span>
+        <span *ngIf="isProcessing">
+          <i class="fas fa-spinner fa-spin"></i>
+          Processing Payment...
+        </span>
+      </button>
+      
+      <button 
+        type="button" 
+        class="back-btn"
+        (click)="goBack()"
+        [disabled]="isProcessing"
+      >
+        Back to Order Summary
+      </button>
+    </div>
+  </form>
+</div>

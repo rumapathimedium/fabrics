@@ -1,0 +1,436 @@
+.not-found-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+
+  .not-found-content {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 10;
+  }
+
+  // Error Animation
+  .error-animation {
+    margin-bottom: 2rem;
+    position: relative;
+
+    .error-number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+
+      .digit {
+        font-size: 8rem;
+        font-weight: 900;
+        color: #667eea;
+        text-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        animation: fadeInUp 0.8s ease-out;
+
+        &.bounce {
+          animation: bounceDigit 2s ease-in-out infinite;
+        }
+      }
+    }
+
+    .error-illustration {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+
+      .magnifying-glass {
+        position: relative;
+        width: 80px;
+        height: 80px;
+
+        .glass {
+          width: 50px;
+          height: 50px;
+          border: 4px solid #667eea;
+          border-radius: 50%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          animation: glassRotate 3s ease-in-out infinite;
+        }
+
+        .handle {
+          width: 4px;
+          height: 30px;
+          background-color: #667eea;
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          transform: rotate(45deg);
+          transform-origin: top center;
+          border-radius: 2px;
+          animation: handleWiggle 3s ease-in-out infinite;
+        }
+      }
+    }
+  }
+
+  // Error Message
+  .error-message {
+    margin-bottom: 2rem;
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .main-message {
+      font-size: 1.1rem;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .url-info {
+      font-size: 0.9rem;
+      color: #888;
+      animation: fadeInUp 0.8s ease-out 0.6s both;
+
+      code {
+        background-color: #f8f9fa;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        color: #e74c3c;
+        word-break: break-all;
+      }
+    }
+  }
+
+  // Action Buttons
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease-out 0.8s both;
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-size: 1rem;
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      &.btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+
+        &:hover {
+          background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+      }
+
+      &.btn-secondary {
+        background-color: #6c757d;
+        color: white;
+
+        &:hover {
+          background-color: #545b62;
+        }
+      }
+
+      &.btn-tertiary {
+        background-color: #28a745;
+        color: white;
+
+        &:hover {
+          background-color: #218838;
+        }
+      }
+
+      i {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  // Suggested Pages
+  .suggested-pages {
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.8s ease-out 1s both;
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+
+    .page-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+
+      .page-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #666;
+        transition: all 0.3s ease;
+
+        &:hover {
+          border-color: #667eea;
+          color: #667eea;
+          transform: translateY(-5px);
+          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        i {
+          font-size: 1.5rem;
+        }
+
+        span {
+          font-weight: 500;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  // Help Section
+  .help-section {
+    border-top: 1px solid #e9ecef;
+    padding-top: 1.5rem;
+    animation: fadeInUp 0.8s ease-out 1.2s both;
+
+    h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    .report-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+      }
+
+      i {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  // Background Elements
+  .bg-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+
+    .floating-shape {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+
+      &.shape-1 {
+        width: 80px;
+        height: 80px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      &.shape-2 {
+        width: 120px;
+        height: 120px;
+        top: 60%;
+        right: 10%;
+        animation-delay: 2s;
+      }
+
+      &.shape-3 {
+        width: 60px;
+        height: 60px;
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 4s;
+      }
+
+      &.shape-4 {
+        width: 100px;
+        height: 100px;
+        top: 20%;
+        right: 30%;
+        animation-delay: 1s;
+      }
+    }
+  }
+
+  // Animations
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes bounceDigit {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-20px);
+    }
+    60% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes glassRotate {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-10deg);
+    }
+    75% {
+      transform: rotate(10deg);
+    }
+  }
+
+  @keyframes handleWiggle {
+    0%, 100% {
+      transform: rotate(45deg);
+    }
+    25% {
+      transform: rotate(35deg);
+    }
+    75% {
+      transform: rotate(55deg);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    33% {
+      transform: translateY(-20px) rotate(120deg);
+    }
+    66% {
+      transform: translateY(20px) rotate(240deg);
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    padding: 1rem;
+
+    .not-found-content {
+      padding: 2rem;
+    }
+
+    .error-number .digit {
+      font-size: 5rem;
+    }
+
+    .error-message h1 {
+      font-size: 1.5rem;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+      align-items: center;
+
+      .btn {
+        width: 100%;
+        max-width: 250px;
+      }
+    }
+
+    .page-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .error-number .digit {
+      font-size: 4rem;
+    }
+
+    .page-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .error-illustration .magnifying-glass {
+      width: 60px;
+      height: 60px;
+
+      .glass {
+        width: 40px;
+        height: 40px;
+      }
+
+      .handle {
+        height: 25px;
+      }
+    }
+  }
+}

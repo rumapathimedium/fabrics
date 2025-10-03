@@ -1,0 +1,59 @@
+<div class="error-container" [class]="'position-' + position" [style.max-width]="maxWidth">
+  <div 
+    *ngFor="let errorItem of getAllErrors(); trackBy: trackByErrorId"
+    class="error-message"
+    [class]="getErrorClass(errorItem.type)"
+    [class.compact]="compact"
+    [class.fade-in]="animation !== 'none'">
+    
+    <!-- Error Icon -->
+    <div class="error-icon" *ngIf="showIcon">
+      <i [class]="getErrorIcon(errorItem.type)"></i>
+    </div>
+
+    <!-- Error Content -->
+    <div class="error-content">
+      <!-- Title -->
+      <h4 class="error-title" *ngIf="showTitle && errorItem.title">
+        {{ errorItem.title }}
+      </h4>
+
+      <!-- Main Message -->
+      <p class="error-message-text">
+        {{ errorItem.message }}
+      </p>
+
+      <!-- Details -->
+      <div class="error-details" *ngIf="errorItem.details">
+        <details>
+          <summary>Show details</summary>
+          <pre class="error-details-text">{{ errorItem.details }}</pre>
+        </details>
+      </div>
+
+      <!-- Action Button -->
+      <button 
+        *ngIf="errorItem.action"
+        type="button"
+        class="error-action-btn"
+        (click)="onActionClick(errorItem)">
+        {{ errorItem.action.label }}
+      </button>
+    </div>
+
+    <!-- Dismiss Button -->
+    <button 
+      *ngIf="errorItem.dismissible !== false"
+      type="button"
+      class="error-dismiss-btn"
+      (click)="dismissError(errorItem)"
+      aria-label="Dismiss error">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="getAllErrors().length === 0" class="no-errors">
+    <!-- This will be hidden by default, useful for testing -->
+  </div>
+</div>

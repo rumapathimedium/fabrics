@@ -1,0 +1,216 @@
+<div class="home-container">
+  <!-- Hero Banner -->
+  <app-banner></app-banner>
+
+  <!-- Featured Products Section -->
+  <section class="featured-products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Featured Products</h2>
+        <p>Discover our most popular and trending items</p>
+      </div>
+
+      <div class="products-grid">
+        <div *ngFor="let product of featuredProducts; trackBy: trackByProductId" 
+             class="product-card">
+          
+          <!-- Product Image -->
+          <div class="product-image">
+            <img [src]="product.image" [alt]="product.name" loading="lazy">
+            <div class="product-overlay">
+              <button class="quick-view-btn" [routerLink]="['/products', product.id]">
+                <i class="fas fa-eye"></i>
+                Quick View
+              </button>
+            </div>
+            
+            <!-- Product Badges -->
+            <div class="product-badges">
+              <span class="badge sale" *ngIf="product.isOnSale">Sale</span>
+              <span class="badge new" *ngIf="product.isNew">New</span>
+              <span class="badge featured" *ngIf="product.isFeatured">Featured</span>
+            </div>
+
+            <!-- Wishlist Button -->
+            <button class="wishlist-btn" (click)="addToWishlist(product)">
+              <i class="far fa-heart"></i>
+            </button>
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-info">
+            <div class="product-category">{{ product.category }}</div>
+            <h3 class="product-name">
+              <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
+            </h3>
+            <p class="product-description">{{ product.description }}</p>
+            
+            <!-- Rating -->
+            <div class="product-rating">
+              <div class="stars">
+                <i *ngFor="let star of getStarArray(product.rating)" 
+                   class="fas fa-star"></i>
+                <i *ngIf="product.rating % 1 !== 0" 
+                   class="fas fa-star-half-alt"></i>
+              </div>
+              <span class="rating-text">{{ product.rating }} ({{ product.reviewCount }} reviews)</span>
+            </div>
+
+            <!-- Price -->
+            <div class="product-price">
+              <span class="current-price">{{ formatPrice(product.price) }}</span>
+              <span class="original-price" *ngIf="product.originalPrice">
+                {{ formatPrice(product.originalPrice) }}
+              </span>
+              <span class="discount" *ngIf="product.originalPrice">
+                {{ getDiscountPercentage(product.originalPrice, product.price) }}% OFF
+              </span>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button class="add-to-cart-btn" (click)="addToCart(product)">
+              <i class="fas fa-shopping-cart"></i>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-footer">
+        <a routerLink="/products" class="view-all-btn">
+          View All Products
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="categories-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Shop by Category</h2>
+        <p>Explore our diverse range of fashion categories</p>
+      </div>
+
+      <div class="categories-grid">
+        <a *ngFor="let category of categories; trackBy: trackByCategoryId"
+           [routerLink]="category.link"
+           class="category-card">
+          <div class="category-image">
+            <img [src]="category.image" [alt]="category.name" loading="lazy">
+            <div class="category-overlay"></div>
+          </div>
+          <div class="category-content">
+            <h3>{{ category.name }}</h3>
+            <p>{{ category.description }}</p>
+            <span class="product-count">{{ category.productCount }} Products</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div *ngFor="let stat of stats; trackBy: trackByStatIndex" 
+             class="stat-item">
+          <div class="stat-icon">
+            <i [class]="stat.icon"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+            <div class="stat-description">{{ stat.description }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>What Our Customers Say</h2>
+        <p>Real feedback from our satisfied customers</p>
+      </div>
+
+      <div class="testimonials-slider">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <div class="quote-icon">
+              <i class="fas fa-quote-left"></i>
+            </div>
+            <p class="testimonial-text">{{ getCurrentTestimonial().comment }}</p>
+            <div class="testimonial-rating">
+              <div class="stars">
+                <i *ngFor="let star of getStarArray(getCurrentTestimonial().rating)" 
+                   class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="testimonial-author">
+            <img [src]="getCurrentTestimonial().avatar" 
+                 [alt]="getCurrentTestimonial().name"
+                 class="author-avatar">
+            <div class="author-info">
+              <h4>{{ getCurrentTestimonial().name }}</h4>
+              <p>Purchased {{ getCurrentTestimonial().product }}</p>
+              <span class="review-date">{{ getCurrentTestimonial().date | date:'MMM d, y' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial Navigation -->
+        <div class="testimonial-navigation">
+          <button class="nav-btn prev" (click)="prevTestimonial()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <div class="testimonial-dots">
+            <button *ngFor="let testimonial of testimonials; let i = index"
+                    class="dot"
+                    [class.active]="i === currentTestimonialIndex"
+                    (click)="goToTestimonial(i)">
+            </button>
+          </div>
+          <button class="nav-btn next" (click)="nextTestimonial()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-content">
+        <div class="newsletter-text">
+          <h2>Stay Updated</h2>
+          <p>Subscribe to our newsletter and be the first to know about new collections, exclusive offers, and fashion tips.</p>
+        </div>
+        <div class="newsletter-form">
+          <div class="form-group">
+            <input type="email" placeholder="Enter your email address" class="email-input">
+            <button class="subscribe-btn">
+              <i class="fas fa-paper-plane"></i>
+              Subscribe
+            </button>
+          </div>
+          <p class="privacy-text">
+            We respect your privacy. Unsubscribe at any time.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Back to Top Button -->
+  <button class="back-to-top" (click)="scrollToTop()">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+</div>

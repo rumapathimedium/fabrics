@@ -1,0 +1,146 @@
+<div class="order-summary-container">
+  <!-- Cart Items -->
+  <div class="section cart-items">
+    <h3 class="section-title">Your Order</h3>
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading order details...</p>
+    </div>
+    
+    <div class="cart-items-list" *ngIf="orderSummary && orderSummary.items">
+      <div 
+        class="cart-item" 
+        *ngFor="let item of orderSummary.items; trackBy: trackByItemId"
+      >
+        <div class="item-image">
+          <img [src]="item.image || '/assets/placeholder-product.jpg'" [alt]="item.name">
+        </div>
+        <div class="item-details">
+          <h4 class="item-name">{{ item.name }}</h4>
+          <div class="item-variants" *ngIf="item.size || item.color">
+            <span class="variant" *ngIf="item.color">Color: {{ item.color }}</span>
+            <span class="variant" *ngIf="item.size">Size: {{ item.size }}</span>
+          </div>
+          <div class="item-meta">
+            <span class="quantity">Qty: {{ item.quantity }}</span>
+            <span class="price">{{ formatPrice(item.price) }}</span>
+          </div>
+        </div>
+        <div class="item-total">
+          {{ formatPrice(item.price * item.quantity) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shipping Methods -->
+  <div class="section shipping-methods">
+    <h3 class="section-title">Shipping Options</h3>
+    <div class="shipping-options" *ngIf="shippingMethods.length > 0">
+      <div 
+        class="shipping-option" 
+        *ngFor="let method of shippingMethods; trackBy: trackByMethodId"
+        [class.selected]="selectedShippingMethod?.id === method.id"
+        (click)="selectShippingMethod(method)"
+      >
+        <div class="method-selector">
+          <input 
+            type="radio" 
+            [value]="method.id"
+            [checked]="selectedShippingMethod?.id === method.id"
+            (change)="selectShippingMethod(method)"
+          >
+        </div>
+        <div class="method-details">
+          <h4 class="method-name">{{ method.name }}</h4>
+          <p class="method-description">{{ method.description }}</p>
+          <p class="method-delivery" *ngIf="method.estimatedDays">
+            Estimated delivery: {{ method.estimatedDays }}
+          </p>
+        </div>
+        <div class="method-price">
+          {{ formatPrice(method.price) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coupon Code -->
+  <div class="section coupon-section">
+    <h3 class="section-title">Promo Code</h3>
+    <div class="coupon-form">
+      <div class="coupon-input-group">
+        <input 
+          type="text" 
+          class="coupon-input"
+          placeholder="Enter promo code"
+          [(ngModel)]="couponCode"
+          [disabled]="isLoading"
+        >
+        <button 
+          class="apply-coupon-btn"
+          (click)="applyCoupon()"
+          [disabled]="isLoading || !couponCode.trim()"
+        >
+          Apply
+        </button>
+      </div>
+      <div 
+        class="coupon-message" 
+        *ngIf="couponMessage"
+        [class.success]="couponSuccess"
+        [class.error]="!couponSuccess"
+      >
+        {{ couponMessage }}
+        <button 
+          class="remove-coupon" 
+          *ngIf="couponSuccess"
+          (click)="removeCoupon()"
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Summary -->
+  <div class="section order-totals">
+    <h3 class="section-title">Order Summary</h3>
+    <div class="totals-breakdown" *ngIf="orderSummary">
+      <div class="total-line">
+        <span class="label">Subtotal ({{ getTotalItemCount() }} items)</span>
+        <span class="value">{{ formatPrice(orderSummary.subtotal) }}</span>
+      </div>
+      
+      <div class="total-line" *ngIf="selectedShippingMethod">
+        <span class="label">Shipping ({{ selectedShippingMethod.name }})</span>
+        <span class="value">{{ formatPrice(selectedShippingMethod.price) }}</span>
+      </div>
+      
+      <div class="total-line" *ngIf="orderSummary.tax > 0">
+        <span class="label">Tax</span>
+        <span class="value">{{ formatPrice(orderSummary.tax) }}</span>
+      </div>
+      
+      <div class="total-line discount" *ngIf="appliedDiscount > 0">
+        <span class="label">Discount ({{ (appliedDiscount * 100) | number:'1.0-0' }}% off)</span>
+        <span class="value">-{{ formatPrice(getDiscountAmount()) }}</span>
+      </div>
+      
+      <div class="total-line total">
+        <span class="label">Total</span>
+        <span class="value">{{ formatPrice(getFinalTotal()) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Actions -->
+  <div class="section order-actions">
+    <button class="continue-btn primary">
+      Continue to Payment
+    </button>
+    <button class="back-btn secondary" routerLink="/cart">
+      Back to Cart
+    </button>
+  </div>
+</div>

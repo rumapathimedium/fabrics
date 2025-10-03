@@ -1,0 +1,260 @@
+<div class="product-management-container">
+  <div class="header">
+    <h1>Product Management</h1>
+    <button class="btn btn-primary" (click)="createNewProduct()">
+      <span class="icon">+</span> New Product
+    </button>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="search">Search Products:</label>
+      <input 
+        type="text" 
+        id="search"
+        [(ngModel)]="searchTerm" 
+        (input)="onSearchChange()"
+        placeholder="Search by name, SKU, or description..."
+        class="search-input">
+    </div>
+    
+    <div class="filter-group">
+      <label for="category-filter">Category:</label>
+      <select 
+        id="category-filter"
+        [(ngModel)]="categoryFilter" 
+        (change)="onCategoryFilterChange()"
+        class="filter-select">
+        <option value="">All Categories</option>
+        <option *ngFor="let category of categories" [value]="category">
+          {{ category | titlecase }}
+        </option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="stock-filter">Stock Level:</label>
+      <select 
+        id="stock-filter"
+        [(ngModel)]="stockFilter" 
+        (change)="onStockFilterChange()"
+        class="filter-select">
+        <option *ngFor="let filter of stockFilters" [value]="filter.value">
+          {{ filter.label }}
+        </option>
+      </select>
+    </div>
+    
+    <div class="summary">
+      <span class="total-products">Products: {{ filteredProducts.length }}</span>
+      <span class="low-stock">Low Stock: {{ getLowStockCount() }}</span>
+      <span class="out-of-stock">Out of Stock: {{ getOutOfStockCount() }}</span>
+      <span class="total-value">Total Value: ${{ getTotalValue() | number:'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="products-grid">
+      <div class="product-card" 
+           *ngFor="let product of filteredProducts"
+           [class.selected]="selectedProduct?.id === product.id"
+           [class.inactive]="!product.isActive"
+           (click)="selectProduct(product)">
+        
+        <div class="product-image">
+          <img [src]="product.imageUrl || '/assets/placeholder-product.svg'" 
+               [alt]="product.name"
+               onerror="this.src='/assets/placeholder-product.svg'">
+          <div class="product-status" [ngClass]="product.isActive ? 'active' : 'inactive'">
+            {{ product.isActive ? 'Active' : 'Inactive' }}
+          </div>
+        </div>
+        
+        <div class="product-info">
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-sku">SKU: {{ product.sku }}</p>
+          <p class="product-description">{{ product.description | slice:0:80 }}{{ product.description.length > 80 ? '...' : '' }}</p>
+          
+          <div class="product-details">
+            <div class="price-stock">
+              <span class="price">${{ product.price | number:'1.2-2' }}</span>
+              <span class="stock" [ngClass]="{
+                'low-stock': product.stock <= 10 && product.stock > 0,
+                'out-of-stock': product.stock === 0
+              }">
+                Stock: {{ product.stock }}
+              </span>
+            </div>
+            
+            <div class="category">
+              <span class="category-badge">{{ product.category | titlecase }}</span>
+            </div>
+          </div>
+          
+          <div class="product-actions">
+            <button 
+              class="btn btn-sm btn-outline" 
+              (click)="selectProduct(product); $event.stopPropagation()"
+              title="Edit Product">
+              ✏️ Edit
+            </button>
+            <button 
+              class="btn btn-sm" 
+              [ngClass]="product.isActive ? 'btn-warning' : 'btn-success'"
+              (click)="toggleProductStatus(product.id); $event.stopPropagation()"
+              title="{{ product.isActive ? 'Deactivate' : 'Activate' }} Product">
+              {{ product.isActive ? '⏸️' : '▶️' }}
+            </button>
+            <button 
+              class="btn btn-sm btn-danger" 
+              (click)="deleteProduct(product.id); $event.stopPropagation()"
+              title="Delete Product">
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="filteredProducts.length === 0" class="no-products">
+        <div class="no-products-content">
+          <h3>No Products Found</h3>
+          <p>No products match your current filter criteria.</p>
+          <button class="btn btn-primary" (click)="createNewProduct()">
+            Create Your First Product
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-form" *ngIf="isEditing">
+      <div class="form-header">
+        <h2>{{ selectedProduct ? 'Edit Product' : 'Create New Product' }}</h2>
+        <button class="btn btn-outline" (click)="cancelEdit()">✕</button>
+      </div>
+      
+      <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+        <div class="form-group">
+          <label for="name">Product Name *</label>
+          <input 
+            type="text" 
+            id="name"
+            formControlName="name"
+            class="form-control"
+            [class.error]="productForm.get('name')?.invalid && productForm.get('name')?.touched">
+          <div class="error-message" *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched">
+            Product name is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea 
+            id="description"
+            formControlName="description"
+            rows="3"
+            class="form-control"
+            [class.error]="productForm.get('description')?.invalid && productForm.get('description')?.touched">
+          </textarea>
+          <div class="error-message" *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched">
+            Description is required
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="price">Price *</label>
+            <input 
+              type="number" 
+              id="price"
+              formControlName="price"
+              step="0.01"
+              min="0"
+              class="form-control"
+              [class.error]="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+            <div class="error-message" *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+              Valid price is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="stock">Stock Quantity *</label>
+            <input 
+              type="number" 
+              id="stock"
+              formControlName="stock"
+              min="0"
+              class="form-control"
+              [class.error]="productForm.get('stock')?.invalid && productForm.get('stock')?.touched">
+            <div class="error-message" *ngIf="productForm.get('stock')?.invalid && productForm.get('stock')?.touched">
+              Stock quantity is required
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sku">SKU *</label>
+            <div class="sku-input">
+              <input 
+                type="text" 
+                id="sku"
+                formControlName="sku"
+                class="form-control"
+                [class.error]="productForm.get('sku')?.invalid && productForm.get('sku')?.touched">
+              <button type="button" class="btn btn-sm btn-outline" (click)="generateSKU()" title="Generate SKU">
+                🎲
+              </button>
+            </div>
+            <div class="error-message" *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched">
+              SKU is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="category">Category *</label>
+            <select 
+              id="category"
+              formControlName="category"
+              class="form-control"
+              [class.error]="productForm.get('category')?.invalid && productForm.get('category')?.touched">
+              <option value="">Select Category</option>
+              <option *ngFor="let category of categories" [value]="category">
+                {{ category | titlecase }}
+              </option>
+            </select>
+            <div class="error-message" *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched">
+              Category is required
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="imageUrl">Image URL</label>
+          <input 
+            type="url" 
+            id="imageUrl"
+            formControlName="imageUrl"
+            class="form-control"
+            placeholder="https://example.com/image.jpg">
+        </div>
+        
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              formControlName="isActive">
+            <span class="checkmark"></span>
+            Product is active
+          </label>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" (click)="cancelEdit()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid">
+            {{ selectedProduct ? 'Update Product' : 'Create Product' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

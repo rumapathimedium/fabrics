@@ -1,0 +1,536 @@
+<div class="settings-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading settings...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="main-content">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>Account Settings</h1>
+      <p>Manage your account preferences and security settings</p>
+    </div>
+
+    <!-- Settings Navigation -->
+    <div class="settings-nav">
+      <button 
+        type="button"
+        class="nav-btn"
+        [class.active]="activeTab === 'preferences'"
+        (click)="switchTab('preferences')">
+        <i class="fas fa-cog"></i>
+        Preferences
+      </button>
+      <button 
+        type="button"
+        class="nav-btn"
+        [class.active]="activeTab === 'notifications'"
+        (click)="switchTab('notifications')">
+        <i class="fas fa-bell"></i>
+        Notifications
+      </button>
+      <button 
+        type="button"
+        class="nav-btn"
+        [class.active]="activeTab === 'privacy'"
+        (click)="switchTab('privacy')">
+        <i class="fas fa-shield-alt"></i>
+        Privacy
+      </button>
+      <button 
+        type="button"
+        class="nav-btn"
+        [class.active]="activeTab === 'security'"
+        (click)="switchTab('security')">
+        <i class="fas fa-lock"></i>
+        Security
+      </button>
+      <button 
+        type="button"
+        class="nav-btn"
+        [class.active]="activeTab === 'account'"
+        (click)="switchTab('account')">
+        <i class="fas fa-user-cog"></i>
+        Account
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      
+      <!-- Preferences Tab -->
+      <div *ngIf="activeTab === 'preferences'" class="preferences-tab">
+        <div class="section-card">
+          <div class="section-header">
+            <h2>Display & Language</h2>
+            <p>Customize how the application appears to you</p>
+          </div>
+
+          <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()">
+            <div class="settings-grid">
+              <div class="setting-item">
+                <label for="language">Language</label>
+                <select id="language" formControlName="language" class="form-select">
+                  <option *ngFor="let lang of languages" [value]="lang.code">
+                    {{ lang.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="setting-item">
+                <label for="currency">Currency</label>
+                <select id="currency" formControlName="currency" class="form-select">
+                  <option *ngFor="let curr of currencies" [value]="curr.code">
+                    {{ curr.name }} ({{ curr.symbol }})
+                  </option>
+                </select>
+              </div>
+
+              <div class="setting-item">
+                <label for="timezone">Timezone</label>
+                <select id="timezone" formControlName="timezone" class="form-select">
+                  <option *ngFor="let tz of timezones" [value]="tz.value">
+                    {{ tz.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="setting-item">
+                <label for="theme">Theme</label>
+                <select id="theme" formControlName="theme" class="form-select">
+                  <option value="light">Light Theme</option>
+                  <option value="dark">Dark Theme</option>
+                  <option value="auto">Auto (System)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="toggle-settings">
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <h4>Compact View</h4>
+                  <p>Show more content in less space</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" formControlName="compactView">
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <h4>Show Animations</h4>
+                  <p>Enable smooth transitions and animations</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" formControlName="animations">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" [disabled]="preferencesForm.invalid || isSaving">
+                <span *ngIf="isSaving">Saving...</span>
+                <span *ngIf="!isSaving">Save Preferences</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Notifications Tab -->
+      <div *ngIf="activeTab === 'notifications'" class="notifications-tab">
+        <div class="section-card">
+          <div class="section-header">
+            <h2>Email Notifications</h2>
+            <p>Choose what emails you'd like to receive</p>
+          </div>
+
+          <form [formGroup]="notificationsForm" (ngSubmit)="saveNotifications()">
+            <div class="notification-groups">
+              <div class="notification-group">
+                <h3>Order Updates</h3>
+                <div class="notification-items">
+                  <div class="notification-item">
+                    <div class="notification-info">
+                      <h4>Order Confirmations</h4>
+                      <p>Receive emails when your order is confirmed</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="orderConfirmation">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="notification-item">
+                    <div class="notification-info">
+                      <h4>Shipping Updates</h4>
+                      <p>Get notified when your order ships and is delivered</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="shippingUpdates">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="notification-item">
+                    <div class="notification-info">
+                      <h4>Order Issues</h4>
+                      <p>Important notifications about order problems</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="orderIssues">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="notification-group">
+                <h3>Marketing</h3>
+                <div class="notification-items">
+                  <div class="notification-item">
+                    <div class="notification-info">
+                      <h4>Promotional Emails</h4>
+                      <p>Sales, discounts, and special offers</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="promotionalEmails">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="notification-item">
+                    <div class="notification-info">
+                      <h4>New Product Alerts</h4>
+                      <p>Be the first to know about new arrivals</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="newProducts">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="notification-item">
+                    <div class="notification-info">
+                      <h4>Wishlist Notifications</h4>
+                      <p>Price drops and stock alerts for saved items</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="wishlistAlerts">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="notification-group">
+                <h3>Account</h3>
+                <div class="notification-items">
+                  <div class="notification-item">
+                    <div class="notification-info">
+                      <h4>Security Alerts</h4>
+                      <p>Login attempts and security-related notifications</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="securityAlerts">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="notification-item">
+                    <div class="notification-info">
+                      <h4>Account Updates</h4>
+                      <p>Changes to your account and profile</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="accountUpdates">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" [disabled]="notificationsForm.invalid || isSaving">
+                <span *ngIf="isSaving">Saving...</span>
+                <span *ngIf="!isSaving">Save Notification Settings</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Privacy Tab -->
+      <div *ngIf="activeTab === 'privacy'" class="privacy-tab">
+        <div class="section-card">
+          <div class="section-header">
+            <h2>Privacy Settings</h2>
+            <p>Control how your data is used and shared</p>
+          </div>
+
+          <form [formGroup]="privacyForm" (ngSubmit)="savePrivacy()">
+            <div class="privacy-sections">
+              <div class="privacy-section">
+                <h3>Data Collection</h3>
+                <div class="privacy-items">
+                  <div class="privacy-item">
+                    <div class="privacy-info">
+                      <h4>Analytics & Performance</h4>
+                      <p>Help us improve by sharing usage data</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="analytics">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="privacy-item">
+                    <div class="privacy-info">
+                      <h4>Personalization</h4>
+                      <p>Use your data to personalize your experience</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="personalization">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="privacy-section">
+                <h3>Profile Visibility</h3>
+                <div class="privacy-items">
+                  <div class="privacy-item">
+                    <div class="privacy-info">
+                      <h4>Show Activity Status</h4>
+                      <p>Let others see when you're online</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="showActivity">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="privacy-item">
+                    <div class="privacy-info">
+                      <h4>Show Purchase History</h4>
+                      <p>Display your recent purchases publicly</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="showPurchases">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="privacy-section">
+                <h3>Data Export & Deletion</h3>
+                <div class="data-actions">
+                  <div class="data-action">
+                    <div class="action-info">
+                      <h4>Download Your Data</h4>
+                      <p>Get a copy of all your personal data</p>
+                    </div>
+                    <button type="button" class="btn-outline" (click)="requestDataExport()">
+                      Download Data
+                    </button>
+                  </div>
+
+                  <div class="data-action">
+                    <div class="action-info">
+                      <h4>Delete Account</h4>
+                      <p>Permanently delete your account and all data</p>
+                    </div>
+                    <button type="button" class="btn-danger" (click)="requestAccountDeletion()">
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" [disabled]="privacyForm.invalid || isSaving">
+                <span *ngIf="isSaving">Saving...</span>
+                <span *ngIf="!isSaving">Save Privacy Settings</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Security Tab -->
+      <div *ngIf="activeTab === 'security'" class="security-tab">
+        <div class="section-card">
+          <div class="section-header">
+            <h2>Security Settings</h2>
+            <p>Protect your account with these security options</p>
+          </div>
+
+          <!-- Password Change -->
+          <div class="security-section">
+            <h3>Change Password</h3>
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+              <div class="password-fields">
+                <div class="form-group">
+                  <label for="currentPassword">Current Password</label>
+                  <input
+                    id="currentPassword"
+                    type="password"
+                    formControlName="currentPassword"
+                    [class.error]="isFieldInvalid(passwordForm, 'currentPassword')"
+                    class="form-input">
+                  <span *ngIf="isFieldInvalid(passwordForm, 'currentPassword')" class="error-message">
+                    {{ getFieldError(passwordForm, 'currentPassword') }}
+                  </span>
+                </div>
+
+                <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <input
+                    id="newPassword"
+                    type="password"
+                    formControlName="newPassword"
+                    [class.error]="isFieldInvalid(passwordForm, 'newPassword')"
+                    class="form-input">
+                  <span *ngIf="isFieldInvalid(passwordForm, 'newPassword')" class="error-message">
+                    {{ getFieldError(passwordForm, 'newPassword') }}
+                  </span>
+                </div>
+
+                <div class="form-group">
+                  <label for="confirmPassword">Confirm New Password</label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    formControlName="confirmPassword"
+                    [class.error]="isFieldInvalid(passwordForm, 'confirmPassword')"
+                    class="form-input">
+                  <span *ngIf="isFieldInvalid(passwordForm, 'confirmPassword')" class="error-message">
+                    {{ getFieldError(passwordForm, 'confirmPassword') }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary" [disabled]="passwordForm.invalid || isSaving">
+                  <span *ngIf="isSaving">Changing...</span>
+                  <span *ngIf="!isSaving">Change Password</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Two-Factor Authentication -->
+          <div class="security-section">
+            <h3>Two-Factor Authentication</h3>
+            <div class="twofa-status">
+              <div class="status-info">
+                <div class="status-icon" [class.enabled]="is2FAEnabled">
+                  <i class="fas" [class.fa-shield-alt]="is2FAEnabled" [class.fa-shield]="!is2FAEnabled"></i>
+                </div>
+                <div class="status-text">
+                  <h4>{{ is2FAEnabled ? 'Enabled' : 'Disabled' }}</h4>
+                  <p>{{ is2FAEnabled ? 'Your account is protected with 2FA' : 'Add an extra layer of security' }}</p>
+                </div>
+              </div>
+              <div class="status-actions">
+                <button 
+                  type="button" 
+                  [class]="is2FAEnabled ? 'btn-danger' : 'btn-primary'"
+                  (click)="toggle2FA()">
+                  {{ is2FAEnabled ? 'Disable 2FA' : 'Enable 2FA' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Login History -->
+          <div class="security-section">
+            <h3>Recent Login Activity</h3>
+            <div class="login-history">
+              <div *ngFor="let login of recentLogins" class="login-item">
+                <div class="login-info">
+                  <div class="login-device">
+                    <i class="fas" [class.fa-desktop]="login.deviceType === 'desktop'" 
+                       [class.fa-mobile-alt]="login.deviceType === 'mobile'"
+                       [class.fa-tablet-alt]="login.deviceType === 'tablet'"></i>
+                    <span>{{ login.device }}</span>
+                  </div>
+                  <div class="login-details">
+                    <div class="login-location">{{ login.location }}</div>
+                    <div class="login-time">{{ formatDate(login.timestamp) }}</div>
+                  </div>
+                </div>
+                <div class="login-status" [class.current]="login.isCurrent">
+                  {{ login.isCurrent ? 'Current Session' : 'Past Session' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Tab -->
+      <div *ngIf="activeTab === 'account'" class="account-tab">
+        <div class="section-card">
+          <div class="section-header">
+            <h2>Account Management</h2>
+            <p>Manage your account status and data</p>
+          </div>
+
+          <!-- Account Status -->
+          <div class="account-section">
+            <h3>Account Status</h3>
+            <div class="account-info">
+              <div class="info-item">
+                <label>Account Type</label>
+                <span class="account-badge premium">Premium Member</span>
+              </div>
+              <div class="info-item">
+                <label>Member Since</label>
+                <span>{{ formatDate(memberSince) }}</span>
+              </div>
+              <div class="info-item">
+                <label>Last Login</label>
+                <span>{{ formatDate(lastLogin) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account Actions -->
+          <div class="account-section">
+            <h3>Account Actions</h3>
+            <div class="account-actions">
+              <div class="action-item">
+                <div class="action-info">
+                  <h4>Deactivate Account</h4>
+                  <p>Temporarily disable your account</p>
+                </div>
+                <button type="button" class="btn-warning" (click)="deactivateAccount()">
+                  Deactivate
+                </button>
+              </div>
+
+              <div class="action-item dangerous">
+                <div class="action-info">
+                  <h4>Delete Account</h4>
+                  <p>Permanently delete your account and all data</p>
+                </div>
+                <button type="button" class="btn-danger" (click)="deleteAccount()">
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

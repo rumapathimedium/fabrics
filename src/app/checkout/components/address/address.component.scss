@@ -1,0 +1,413 @@
+// Address Component Styles
+
+.address-header {
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.8rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+
+    i {
+      color: #667eea;
+      font-size: 1.5rem;
+    }
+  }
+
+  p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 3rem;
+  color: #667eea;
+
+  i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  span {
+    font-size: 1.1rem;
+  }
+}
+
+.address-selection {
+  .addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .address-card {
+      background: white;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+
+      &:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+      }
+
+      &.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+      }
+
+      .address-header-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        .address-type {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-weight: 600;
+          color: #667eea;
+          text-transform: capitalize;
+
+          i {
+            font-size: 1.1rem;
+          }
+        }
+
+        .default-badge {
+          background: #ffc107;
+          color: #333;
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+
+          i {
+            font-size: 0.7rem;
+          }
+        }
+      }
+
+      .address-content {
+        .recipient-name {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 0.25rem;
+        }
+
+        .company-name {
+          color: #667eea;
+          font-weight: 500;
+          margin-bottom: 0.5rem;
+        }
+
+        .address-lines {
+          color: #555;
+          line-height: 1.5;
+          margin-bottom: 0.75rem;
+
+          div {
+            margin-bottom: 0.125rem;
+          }
+        }
+
+        .phone-number {
+          color: #6c757d;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          i {
+            font-size: 0.8rem;
+          }
+        }
+      }
+
+      .selection-indicator {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        color: #28a745;
+        font-size: 1.5rem;
+        animation: scaleIn 0.3s ease;
+      }
+    }
+  }
+
+  .add-address-section {
+    text-align: center;
+    padding: 2rem;
+
+    .add-address-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.add-address-form {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 1rem;
+
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f8f9fa;
+
+    h3 {
+      font-size: 1.4rem;
+      color: #333;
+      margin: 0;
+    }
+
+    .cancel-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: #6c757d;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #f8f9fa;
+        color: #dc3545;
+      }
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      &.error {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+      }
+
+      &::placeholder {
+        color: #adb5bd;
+      }
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+
+      &::before {
+        content: '⚠';
+        font-size: 0.8rem;
+      }
+    }
+
+    &.checkbox-group {
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-weight: normal;
+
+        input[type="checkbox"] {
+          display: none;
+        }
+
+        .checkbox-custom {
+          width: 20px;
+          height: 20px;
+          border: 2px solid #e9ecef;
+          border-radius: 4px;
+          position: relative;
+          transition: all 0.3s ease;
+
+          &::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: all 0.3s ease;
+          }
+        }
+
+        input[type="checkbox"]:checked + .checkbox-custom {
+          background: #667eea;
+          border-color: #667eea;
+
+          &::after {
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f8f9fa;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+
+    .cancel-btn-secondary {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      color: #6c757d;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+
+      &:hover {
+        background: #f8f9fa;
+        color: #495057;
+      }
+    }
+
+    .save-btn {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      }
+
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .address-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .add-address-form {
+    padding: 1.5rem;
+  }
+
+  .addresses-grid .address-card {
+    padding: 1rem;
+  }
+}

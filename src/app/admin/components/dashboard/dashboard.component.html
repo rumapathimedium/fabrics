@@ -1,0 +1,79 @@
+<div class="dashboard-container">
+  <h1>Admin Dashboard</h1>
+  
+  <div class="stats-cards">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-content">
+        <h3>Total Orders</h3>
+        <p class="stat-number">{{ totalOrders }}</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">👔</div>
+      <div class="stat-content">
+        <h3>Total Products</h3>
+        <p class="stat-number">{{ totalProducts }}</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-content">
+        <h3>Low Stock Items</h3>
+        <p class="stat-number">{{ lowStockProducts.length }}</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dashboard-content">
+    <div class="recent-orders">
+      <div class="section-header">
+        <h2>Recent Orders</h2>
+        <button (click)="refreshDashboard()" class="refresh-btn">Refresh</button>
+      </div>
+      
+      <div class="orders-list" *ngIf="recentOrders.length > 0; else noOrders">
+        <div class="order-item" *ngFor="let order of recentOrders">
+          <div class="order-info">
+            <span class="order-id">#{{ order.id }}</span>
+            <span class="customer-name">{{ order.customerName }}</span>
+          </div>
+          <div class="order-details">
+            <span class="order-amount">${{ order.amount }}</span>
+            <span class="order-status" [ngClass]="'status-' + order.status.toLowerCase()">
+              {{ order.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noOrders>
+        <p class="no-data">No recent orders found.</p>
+      </ng-template>
+    </div>
+    
+    <div class="low-stock">
+      <h2>Low Stock Products</h2>
+      
+      <div class="products-list" *ngIf="lowStockProducts.length > 0; else noLowStock">
+        <div class="product-item" *ngFor="let product of lowStockProducts">
+          <div class="product-info">
+            <span class="product-name">{{ product.name }}</span>
+            <span class="product-sku">SKU: {{ product.sku }}</span>
+          </div>
+          <div class="stock-info">
+            <span class="stock-count" [ngClass]="{ 'critical': product.stock < 5 }">
+              {{ product.stock }} left
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noLowStock>
+        <p class="no-data">All products are well stocked.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

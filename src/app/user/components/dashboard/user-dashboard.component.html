@@ -1,0 +1,108 @@
+<!-- User Dashboard Header -->
+<div class="dashboard-header">
+  <div class="container">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-user-circle"></i>
+        Welcome, {{ currentUser?.firstName }}!
+      </h1>
+      <div class="user-info">
+        <span class="user-email">{{ currentUser?.email }}</span>
+        <button class="logout-btn" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Dashboard Content -->
+<div class="dashboard-content">
+  <div class="container">
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h2>Quick Actions</h2>
+      <div class="actions-grid">
+        <a routerLink="/cart/cart" class="action-card">
+          <i class="fas fa-shopping-cart"></i>
+          <h3>Shopping Cart</h3>
+          <p>View and manage your cart items</p>
+        </a>
+        
+        <a routerLink="/cart/wishlist" class="action-card">
+          <i class="fas fa-heart"></i>
+          <h3>Wishlist</h3>
+          <p>Items saved for later</p>
+        </a>
+        
+        <div class="action-card" style="opacity: 0.6; cursor: not-allowed;">
+          <i class="fas fa-box"></i>
+          <h3>My Orders</h3>
+          <p>Track your order history</p>
+          <span class="coming-soon">Coming Soon</span>
+        </div>
+        
+        <div class="action-card" style="opacity: 0.6; cursor: not-allowed;">
+          <i class="fas fa-user-cog"></i>
+          <h3>Profile Settings</h3>
+          <p>Manage your account</p>
+          <span class="coming-soon">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+      <h2>Recent Activity</h2>
+      <div class="activity-card">
+        <div class="activity-placeholder">
+          <i class="fas fa-shopping-bag"></i>
+          <h3>Start Shopping!</h3>
+          <p>Browse our collection and add items to your cart or wishlist.</p>
+          <div class="placeholder-actions">
+            <a routerLink="/cart/cart" class="btn-primary">
+              <i class="fas fa-shopping-cart"></i>
+              Go to Cart
+            </a>
+            <a routerLink="/cart/wishlist" class="btn-secondary">
+              <i class="fas fa-heart"></i>
+              View Wishlist
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Stats -->
+    <div class="user-stats">
+      <h2>Your Account</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fas fa-calendar-alt"></i>
+          <h3>Member Since</h3>
+          <p>{{ currentUser?.createdAt | date:'MMMM yyyy' }}</p>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-envelope-check"></i>
+          <h3>Email Status</h3>
+          <p>
+            <span *ngIf="currentUser?.isEmailVerified" class="verified">
+              <i class="fas fa-check-circle"></i> Verified
+            </span>
+            <span *ngIf="!currentUser?.isEmailVerified" class="unverified">
+              <i class="fas fa-exclamation-circle"></i> Unverified
+            </span>
+          </p>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-clock"></i>
+          <h3>Last Login</h3>
+          <p>{{ currentUser?.lastLoginAt | date:'short' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

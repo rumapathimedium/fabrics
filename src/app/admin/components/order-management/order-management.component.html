@@ -1,0 +1,187 @@
+<div class="order-management-container">
+  <div class="header">
+    <h1>Order Management</h1>
+    <button class="btn btn-primary" (click)="createNewOrder()">
+      <span class="icon">+</span> New Order
+    </button>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="search">Search Orders:</label>
+      <input 
+        type="text" 
+        id="search"
+        [(ngModel)]="searchTerm" 
+        (input)="onSearchChange()"
+        placeholder="Search by customer name, email, or order ID..."
+        class="search-input">
+    </div>
+    
+    <div class="filter-group">
+      <label for="status-filter">Filter by Status:</label>
+      <select 
+        id="status-filter"
+        [(ngModel)]="statusFilter" 
+        (change)="onStatusFilterChange()"
+        class="status-select">
+        <option value="">All Statuses</option>
+        <option *ngFor="let status of orderStatuses" [value]="status">
+          {{ status | titlecase }}
+        </option>
+      </select>
+    </div>
+    
+    <div class="summary">
+      <span class="total-orders">Total Orders: {{ filteredOrders.length }}</span>
+      <span class="total-amount">Total Amount: ${{ getTotalAmount() | number:'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="orders-list">
+      <div class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Email</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of filteredOrders" 
+                [class.selected]="selectedOrder?.id === order.id"
+                (click)="selectOrder(order)">
+              <td class="order-id">#{{ order.id }}</td>
+              <td class="customer-name">{{ order.customerName }}</td>
+              <td class="customer-email">{{ order.email }}</td>
+              <td class="order-amount">${{ order.amount | number:'1.2-2' }}</td>
+              <td class="order-status">
+                <select 
+                  [value]="order.status" 
+                  (change)="onOrderStatusChange(order.id, $event)"
+                  class="status-dropdown"
+                  [ngClass]="'status-' + order.status"
+                  (click)="$event.stopPropagation()">
+                  <option *ngFor="let status of orderStatuses" [value]="status">
+                    {{ status | titlecase }}
+                  </option>
+                </select>
+              </td>
+              <td class="order-date">{{ order.orderDate | date:'short' }}</td>
+              <td class="actions">
+                <button 
+                  class="btn btn-sm btn-outline" 
+                  (click)="selectOrder(order); $event.stopPropagation()"
+                  title="Edit Order">
+                  ✏️
+                </button>
+                <button 
+                  class="btn btn-sm btn-danger" 
+                  (click)="deleteOrder(order.id); $event.stopPropagation()"
+                  title="Delete Order">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div *ngIf="filteredOrders.length === 0" class="no-orders">
+          <p>No orders found matching your criteria.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-form" *ngIf="isEditing">
+      <div class="form-header">
+        <h2>{{ selectedOrder ? 'Edit Order' : 'Create New Order' }}</h2>
+        <button class="btn btn-outline" (click)="cancelEdit()">✕</button>
+      </div>
+      
+      <form [formGroup]="orderForm" (ngSubmit)="saveOrder()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="customerName">Customer Name *</label>
+            <input 
+              type="text" 
+              id="customerName"
+              formControlName="customerName"
+              class="form-control"
+              [class.error]="orderForm.get('customerName')?.invalid && orderForm.get('customerName')?.touched">
+            <div class="error-message" *ngIf="orderForm.get('customerName')?.invalid && orderForm.get('customerName')?.touched">
+              Customer name is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input 
+              type="email" 
+              id="email"
+              formControlName="email"
+              class="form-control"
+              [class.error]="orderForm.get('email')?.invalid && orderForm.get('email')?.touched">
+            <div class="error-message" *ngIf="orderForm.get('email')?.invalid && orderForm.get('email')?.touched">
+              Valid email is required
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone *</label>
+            <input 
+              type="tel" 
+              id="phone"
+              formControlName="phone"
+              class="form-control"
+              [class.error]="orderForm.get('phone')?.invalid && orderForm.get('phone')?.touched">
+            <div class="error-message" *ngIf="orderForm.get('phone')?.invalid && orderForm.get('phone')?.touched">
+              Phone number is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="amount">Amount *</label>
+            <input 
+              type="number" 
+              id="amount"
+              formControlName="amount"
+              step="0.01"
+              min="0"
+              class="form-control"
+              [class.error]="orderForm.get('amount')?.invalid && orderForm.get('amount')?.touched">
+            <div class="error-message" *ngIf="orderForm.get('amount')?.invalid && orderForm.get('amount')?.touched">
+              Valid amount is required
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="status">Status *</label>
+          <select 
+            id="status"
+            formControlName="status"
+            class="form-control">
+            <option *ngFor="let status of orderStatuses" [value]="status">
+              {{ status | titlecase }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" (click)="cancelEdit()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="orderForm.invalid">
+            {{ selectedOrder ? 'Update Order' : 'Create Order' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

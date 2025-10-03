@@ -1,0 +1,153 @@
+<!-- Cart Header -->
+<div class="cart-header">
+  <div class="container">
+    <h1>
+      <i class="fas fa-shopping-cart"></i>
+      Shopping Cart
+    </h1>
+    <p class="cart-summary">{{ totalItems }} item(s) in your cart</p>
+  </div>
+</div>
+
+<!-- Cart Content -->
+<div class="cart-content">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Updating cart...</span>
+    </div>
+
+    <!-- Empty Cart -->
+    <div *ngIf="cartItems.length === 0 && !isLoading" class="empty-cart">
+      <i class="fas fa-shopping-cart empty-icon"></i>
+      <h2>Your cart is empty</h2>
+      <p>Add some items to your cart to get started!</p>
+      <button class="continue-shopping-btn" (click)="continueShopping()">
+        <i class="fas fa-arrow-left"></i>
+        Continue Shopping
+      </button>
+    </div>
+
+    <!-- Cart Items -->
+    <div *ngIf="cartItems.length > 0" class="cart-section">
+      <div class="cart-items">
+        <div *ngFor="let item of cartItems; trackBy: trackByItemId" class="cart-item">
+          <div class="item-image">
+            <img [src]="item.image" [alt]="item.name" />
+          </div>
+          
+          <div class="item-details">
+            <h3 class="item-name">{{ item.name }}</h3>
+            <p class="item-brand">{{ item.brand }}</p>
+            <p class="item-size" *ngIf="item.size">Size: {{ item.size }}</p>
+            <p class="item-color" *ngIf="item.color">Color: {{ item.color }}</p>
+            <p class="item-sku">SKU: {{ item.sku }}</p>
+          </div>
+          
+          <div class="item-price">
+            <span class="current-price">{{ formatPrice(item.price) }}</span>
+            <span *ngIf="item.originalPrice && item.originalPrice > item.price" class="original-price">
+              {{ formatPrice(item.originalPrice) }}
+            </span>
+          </div>
+          
+          <div class="quantity-controls">
+            <button 
+              class="qty-btn" 
+              (click)="updateQuantity(item, item.quantity - 1)"
+              [disabled]="isLoading || item.quantity <= 1">
+              <i class="fas fa-minus"></i>
+            </button>
+            <input 
+              type="number" 
+              class="qty-input" 
+              [value]="item.quantity"
+              (input)="onQuantityChange(item, $event)"
+              min="1"
+              [disabled]="isLoading">
+            <button 
+              class="qty-btn" 
+              (click)="updateQuantity(item, item.quantity + 1)"
+              [disabled]="isLoading">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          
+          <div class="item-total">
+            {{ formatPrice(item.price * item.quantity) }}
+          </div>
+          
+          <div class="item-actions">
+            <button 
+              class="action-btn wishlist-btn" 
+              (click)="moveToWishlist(item)"
+              [disabled]="isLoading"
+              title="Move to Wishlist">
+              <i class="fas fa-heart"></i>
+            </button>
+            <button 
+              class="action-btn remove-btn" 
+              (click)="removeItem(item)"
+              [disabled]="isLoading"
+              title="Remove Item">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart Summary -->
+      <div class="cart-summary-section">
+        <div class="summary-card">
+          <h3>Order Summary</h3>
+          
+          <div class="summary-row">
+            <span>Subtotal ({{ totalItems }} items)</span>
+            <span>{{ formatPrice(totalAmount) }}</span>
+          </div>
+          
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span class="free-shipping">FREE</span>
+          </div>
+          
+          <div class="summary-row">
+            <span>Tax</span>
+            <span>{{ formatPrice(totalAmount * 0.08) }}</span>
+          </div>
+          
+          <hr class="summary-divider">
+          
+          <div class="summary-row total-row">
+            <span>Total</span>
+            <span>{{ formatPrice(totalAmount + (totalAmount * 0.08)) }}</span>
+          </div>
+          
+          <button class="checkout-btn" (click)="proceedToCheckout()" [disabled]="isLoading">
+            <i class="fas fa-lock"></i>
+            Proceed to Checkout
+          </button>
+          
+          <button class="continue-shopping-btn-outline" (click)="continueShopping()">
+            <i class="fas fa-arrow-left"></i>
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Actions -->
+    <div *ngIf="cartItems.length > 0" class="cart-actions">
+      <button class="clear-cart-btn" (click)="clearCart()" [disabled]="isLoading">
+        <i class="fas fa-trash-alt"></i>
+        Clear Cart
+      </button>
+      
+      <a routerLink="/cart/wishlist" class="wishlist-link">
+        <i class="fas fa-heart"></i>
+        View Wishlist
+      </a>
+    </div>
+  </div>
+</div>

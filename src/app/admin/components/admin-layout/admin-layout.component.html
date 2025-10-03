@@ -1,0 +1,76 @@
+<div class="admin-layout">
+  <header class="admin-header">
+    <div class="header-content">
+      <button class="menu-toggle" (click)="toggleMenu()" [class.active]="isMenuOpen">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
+      <div class="logo">
+        <h1>Cloth Admin</h1>
+      </div>
+      
+      <div class="header-actions">
+        <span class="user-info">Welcome, Admin</span>
+        <button class="logout-btn" (click)="logout()" title="Logout">
+          <span class="logout-icon">🚪</span>
+          <span class="logout-text">Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="admin-sidebar" [class.open]="isMenuOpen">
+    <div class="sidebar-content">
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a routerLink="/admin/dashboard" 
+             routerLinkActive="active" 
+             (click)="closeMenu()"
+             class="nav-link">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a routerLink="/admin/orders" 
+             routerLinkActive="active" 
+             (click)="closeMenu()"
+             class="nav-link">
+            <span class="nav-icon">📦</span>
+            <span class="nav-text">Orders</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a routerLink="/admin/products" 
+             routerLinkActive="active" 
+             (click)="closeMenu()"
+             class="nav-link">
+            <span class="nav-icon">👔</span>
+            <span class="nav-text">Products</span>
+          </a>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <button class="sidebar-logout-btn" (click)="logout(); closeMenu()">
+          <span class="nav-icon">🚪</span>
+          <span class="nav-text">Logout</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="admin-main" [class.menu-open]="isMenuOpen">
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <div class="overlay" 
+       [class.active]="isMenuOpen" 
+       (click)="closeMenu()"></div>
+</div>

@@ -1,0 +1,433 @@
+<div class="product-details-container" *ngIf="!isLoading && !notFound">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <ol class="breadcrumb-list">
+      <li><a routerLink="/">Home</a></li>
+      <li><a routerLink="/products">Products</a></li>
+      <li *ngIf="product?.category">
+        <a [routerLink]="['/products']" [queryParams]="{category: product?.category}">
+          {{ product?.category }}
+        </a>
+      </li>
+      <li aria-current="page">{{ product?.name }}</li>
+    </ol>
+  </nav>
+
+  <!-- Main Product Section -->
+  <div class="product-main">
+    <!-- Image Gallery -->
+    <div class="product-gallery">
+      <div class="main-image">
+        <img 
+          [src]="product?.images?.[selectedImageIndex]" 
+          [alt]="product?.name"
+          class="main-img"
+          (click)="onImageModalToggle()">
+        
+        <!-- Product badges -->
+        <div class="product-badges">
+          <span *ngIf="product?.isNew" class="badge badge-new">New</span>
+          <span *ngIf="product?.isSale" class="badge badge-sale">
+            -{{ discountPercentage }}%
+          </span>
+        </div>
+
+        <!-- Zoom icon -->
+        <button 
+          type="button" 
+          class="zoom-btn"
+          (click)="onImageModalToggle()"
+          aria-label="Zoom image">
+          <i class="fas fa-search-plus"></i>
+        </button>
+      </div>
+
+      <div class="thumbnail-gallery">
+        <button
+          *ngFor="let image of product?.images; let i = index"
+          type="button"
+          class="thumbnail"
+          [class.active]="i === selectedImageIndex"
+          (click)="onImageSelect(i)">
+          <img [src]="image" [alt]="'Product image ' + (i + 1)">
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info">
+      <div class="product-header">
+        <div class="product-category">{{ product?.category }}</div>
+        <h1 class="product-title">{{ product?.name }}</h1>
+        <div class="product-brand">by {{ product?.brand }}</div>
+      </div>
+
+      <!-- Rating -->
+      <div class="product-rating">
+        <div class="stars">
+          <i 
+            *ngFor="let star of getStarArray(product?.rating || 0)"
+            class="star"
+            [class.fas]="star"
+            [class.far]="!star">
+          </i>
+        </div>
+        <span class="rating-text">
+          {{ product?.rating?.toFixed(1) }} ({{ product?.reviewCount }} reviews)
+        </span>
+      </div>
+
+      <!-- Price -->
+      <div class="product-price">
+        <span class="current-price">{{ formatPrice(product?.price || 0) }}</span>
+        <span 
+          *ngIf="product?.originalPrice" 
+          class="original-price">
+          {{ formatPrice(product?.originalPrice || 0) }}
+        </span>
+        <span *ngIf="product?.isSale" class="discount-badge">
+          Save {{ formatPrice((product?.originalPrice || 0) - (product?.price || 0)) }}
+        </span>
+      </div>
+
+      <!-- Short Description -->
+      <p class="product-description">{{ product?.description }}</p>
+
+      <!-- Color Selection -->
+      <div class="selection-group" *ngIf="hasColors">
+        <label class="selection-label">Color: 
+          <span class="selected-value">{{ selectedColor || 'Select a color' }}</span>
+        </label>
+        <div class="color-options">
+          <button
+            *ngFor="let color of product?.colors"
+            type="button"
+            class="color-option"
+            [class.selected]="selectedColor === color.name"
+            [class.unavailable]="!color.available"
+            [style.background-color]="color.hex"
+            [disabled]="!color.available"
+            [title]="color.name + (color.available ? '' : ' - Out of stock')"
+            (click)="onColorSelect(color.name)">
+            <i *ngIf="selectedColor === color.name" class="fas fa-check"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Size Selection -->
+      <div class="selection-group" *ngIf="hasSizes">
+        <label class="selection-label">Size: 
+          <span class="selected-value">{{ selectedSize || 'Select a size' }}</span>
+        </label>
+        <div class="size-options">
+          <button
+            *ngFor="let size of product?.sizes"
+            type="button"
+            class="size-option"
+            [class.selected]="selectedSize === size.size"
+            [class.unavailable]="!size.available"
+            [disabled]="!size.available"
+            [title]="size.size + (size.available ? ' - ' + size.stockCount + ' left' : ' - Out of stock')"
+            (click)="onSizeSelect(size.size)">
+            {{ size.size }}
+          </button>
+        </div>
+        <a href="#" class="size-guide-link">Size Guide</a>
+      </div>
+
+      <!-- Quantity -->
+      <div class="selection-group">
+        <label class="selection-label">Quantity:</label>
+        <div class="quantity-selector">
+          <button 
+            type="button"
+            class="quantity-btn"
+            (click)="onQuantityChange(-1)"
+            [disabled]="quantity <= 1">
+            <i class="fas fa-minus"></i>
+          </button>
+          <span class="quantity-value">{{ quantity }}</span>
+          <button 
+            type="button"
+            class="quantity-btn"
+            (click)="onQuantityChange(1)"
+            [disabled]="quantity >= maxQuantity">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="stock-info" *ngIf="selectedSizeData">
+          {{ selectedSizeData.stockCount }} left in {{ selectedSize }}
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="product-actions">
+        <button 
+          type="button"
+          class="btn-primary add-to-cart"
+          [disabled]="!canAddToCart"
+          (click)="onAddToCart()">
+          <i *ngIf="isAddingToCart" class="fas fa-spinner fa-spin"></i>
+          <i *ngIf="!isAddingToCart" class="fas fa-shopping-cart"></i>
+          {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
+        </button>
+
+        <button 
+          type="button"
+          class="btn-secondary buy-now"
+          [disabled]="!canAddToCart"
+          (click)="onBuyNow()">
+          Buy Now
+        </button>
+
+        <button 
+          type="button"
+          class="btn-icon wishlist-btn"
+          [class.active]="isInWishlist"
+          (click)="onToggleWishlist()"
+          [attr.aria-label]="isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'">
+          <i [class.fas]="isInWishlist" [class.far]="!isInWishlist" class="fa-heart"></i>
+        </button>
+      </div>
+
+      <!-- Features -->
+      <div class="product-features">
+        <div class="feature">
+          <i class="fas fa-truck"></i>
+          <span>Free shipping on orders over $50</span>
+        </div>
+        <div class="feature">
+          <i class="fas fa-undo"></i>
+          <span>30-day return policy</span>
+        </div>
+        <div class="feature">
+          <i class="fas fa-shield-alt"></i>
+          <span>2-year warranty</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Details Tabs -->
+  <div class="product-tabs">
+    <div class="tab-nav">
+      <button 
+        *ngFor="let tab of ['description', 'specifications', 'reviews', 'shipping']"
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab === tab"
+        (click)="onTabChange(tab)">
+        {{ tab | titlecase }}
+        <span *ngIf="tab === 'reviews'" class="review-count">({{ product?.reviewCount }})</span>
+      </button>
+    </div>
+
+    <div class="tab-content">
+      <!-- Description Tab -->
+      <div *ngIf="activeTab === 'description'" class="tab-panel">
+        <div class="description-content">
+          <h3>About this product</h3>
+          <p>{{ product?.longDescription }}</p>
+          
+          <h4>Materials</h4>
+          <ul>
+            <li *ngFor="let material of product?.materials">{{ material }}</li>
+          </ul>
+
+          <h4>Care Instructions</h4>
+          <ul>
+            <li *ngFor="let instruction of product?.careInstructions">{{ instruction }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Specifications Tab -->
+      <div *ngIf="activeTab === 'specifications'" class="tab-panel">
+        <div class="specifications-content">
+          <h3>Product Specifications</h3>
+          <dl class="spec-list">
+            <div *ngFor="let spec of product?.specifications | keyvalue" class="spec-item">
+              <dt>{{ spec.key }}</dt>
+              <dd>{{ spec.value }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Reviews Tab -->
+      <div *ngIf="activeTab === 'reviews'" class="tab-panel">
+        <div class="reviews-content">
+          <div class="reviews-header">
+            <h3>Customer Reviews</h3>
+            <div class="reviews-summary">
+              <div class="average-rating">
+                <div class="rating-number">{{ product?.rating?.toFixed(1) }}</div>
+                <div class="stars">
+                  <i 
+                    *ngFor="let star of getStarArray(product?.rating || 0)"
+                    class="star"
+                    [class.fas]="star"
+                    [class.far]="!star">
+                  </i>
+                </div>
+                <div class="total-reviews">{{ product?.reviewCount }} reviews</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reviews-list">
+            <article 
+              *ngFor="let review of getDisplayedReviews()" 
+              class="review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <img 
+                    *ngIf="review.userAvatar"
+                    [src]="review.userAvatar" 
+                    [alt]="review.userName"
+                    class="reviewer-avatar">
+                  <div class="reviewer-details">
+                    <div class="reviewer-name">{{ review.userName }}</div>
+                    <div class="review-date">{{ review.createdAt | date:'mediumDate' }}</div>
+                  </div>
+                </div>
+                <div class="review-rating">
+                  <div class="stars">
+                    <i 
+                      *ngFor="let star of getStarArray(review.rating)"
+                      class="star"
+                      [class.fas]="star"
+                      [class.far]="!star">
+                    </i>
+                  </div>
+                  <span *ngIf="review.verified" class="verified-badge">Verified Purchase</span>
+                </div>
+              </div>
+
+              <div class="review-content">
+                <h4 class="review-title">{{ review.title }}</h4>
+                <p class="review-comment">{{ review.comment }}</p>
+                
+                <div *ngIf="review.images && review.images.length > 0" class="review-images">
+                  <img 
+                    *ngFor="let image of review.images"
+                    [src]="image" 
+                    alt="Review image"
+                    class="review-image">
+                </div>
+              </div>
+
+              <div class="review-actions">
+                <button 
+                  type="button"
+                  class="helpful-btn"
+                  (click)="onReviewHelpful(review.id)">
+                  <i class="far fa-thumbs-up"></i>
+                  Helpful ({{ review.helpful }})
+                </button>
+              </div>
+            </article>
+          </div>
+
+          <button 
+            *ngIf="!showAllReviews && reviews.length > reviewsToShow"
+            type="button"
+            class="btn-secondary show-more-reviews"
+            (click)="onShowMoreReviews()">
+            Show All {{ reviews.length }} Reviews
+          </button>
+        </div>
+      </div>
+
+      <!-- Shipping Tab -->
+      <div *ngIf="activeTab === 'shipping'" class="tab-panel">
+        <div class="shipping-content">
+          <h3>Shipping Information</h3>
+          
+          <div class="shipping-options">
+            <div class="shipping-option">
+              <div class="option-header">
+                <h4>Standard Shipping</h4>
+                <span class="option-price">{{ formatPrice(product?.shippingInfo?.standard?.price || 0) }}</span>
+              </div>
+              <p>{{ product?.shippingInfo?.standard?.days }}</p>
+            </div>
+
+            <div class="shipping-option">
+              <div class="option-header">
+                <h4>Express Shipping</h4>
+                <span class="option-price">{{ formatPrice(product?.shippingInfo?.express?.price || 0) }}</span>
+              </div>
+              <p>{{ product?.shippingInfo?.express?.days }}</p>
+            </div>
+
+            <div class="shipping-option">
+              <div class="option-header">
+                <h4>Overnight Shipping</h4>
+                <span class="option-price">{{ formatPrice(product?.shippingInfo?.overnight?.price || 0) }}</span>
+              </div>
+              <p>{{ product?.shippingInfo?.overnight?.days }}</p>
+            </div>
+          </div>
+
+          <div class="return-policy">
+            <h4>Return Policy</h4>
+            <p>{{ product?.returnPolicy }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  <div class="related-products" *ngIf="relatedProducts.length > 0">
+    <h3>You might also like</h3>
+    <div class="related-grid">
+      <article 
+        *ngFor="let related of relatedProducts"
+        class="related-item"
+        (click)="router.navigate(['/products', related.id])">
+        <div class="related-image">
+          <img [src]="related.imageUrl" [alt]="related.name">
+        </div>
+        <div class="related-info">
+          <h4>{{ related.name }}</h4>
+          <div class="related-price">{{ formatPrice(related.price) }}</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="isLoading" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p>Loading product details...</p>
+</div>
+
+<!-- Not Found State -->
+<div *ngIf="notFound" class="not-found-container">
+  <i class="fas fa-box-open"></i>
+  <h2>Product Not Found</h2>
+  <p>The product you're looking for doesn't exist or has been removed.</p>
+  <button type="button" class="btn-primary" routerLink="/products">
+    Browse All Products
+  </button>
+</div>
+
+<!-- Image Modal -->
+<div *ngIf="showImageModal" class="image-modal" (click)="onImageModalToggle()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button 
+      type="button" 
+      class="modal-close"
+      (click)="onImageModalToggle()"
+      aria-label="Close image modal">
+      <i class="fas fa-times"></i>
+    </button>
+    <img 
+      [src]="product?.images?.[selectedImageIndex]" 
+      [alt]="product?.name"
+      class="modal-image">
+  </div>
+</div>

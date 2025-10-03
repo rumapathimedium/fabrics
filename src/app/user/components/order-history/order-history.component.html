@@ -1,0 +1,213 @@
+<div class="order-history-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading your orders...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="main-content">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>Order History</h1>
+      <p>Track and manage your orders</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="status-filter">Status</label>
+          <select 
+            id="status-filter"
+            [(ngModel)]="filter.status" 
+            (ngModelChange)="applyFilters()"
+            class="filter-select">
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="date-filter">Date Range</label>
+          <select 
+            id="date-filter"
+            [(ngModel)]="filter.dateRange" 
+            (ngModelChange)="applyFilters()"
+            class="filter-select">
+            <option *ngFor="let option of dateRangeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="search">Search</label>
+          <input
+            id="search"
+            type="text"
+            placeholder="Order number, product name..."
+            [(ngModel)]="filter.searchTerm"
+            (ngModelChange)="applyFilters()"
+            class="search-input">
+        </div>
+
+        <button 
+          type="button"
+          class="clear-filters-btn"
+          (click)="clearFilters()"
+          [disabled]="!hasActiveFilters">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Orders List -->
+    <div class="orders-list" *ngIf="getPaginatedOrders().length > 0">
+      <div 
+        *ngFor="let order of getPaginatedOrders()"
+        class="order-card"
+        (click)="viewOrderDetails(order.id)">
+        
+        <div class="order-header">
+          <div class="order-info">
+            <h3>{{ order.orderNumber }}</h3>
+            <p>{{ formatDate(order.date) }}</p>
+          </div>
+          <div class="order-status">
+            <span [class]="getStatusClass(order.status)">
+              <i [class]="getStatusIcon(order.status)"></i>
+              {{ order.status | titlecase }}
+            </span>
+          </div>
+        </div>
+
+        <div class="order-details">
+          <div class="order-summary">
+            <p><strong>Total:</strong> {{ formatPrice(order.total) }}</p>
+            <p><strong>Items:</strong> {{ order.items.length }}</p>
+            <p *ngIf="order.trackingNumber">
+              <strong>Tracking:</strong> {{ order.trackingNumber }}
+            </p>
+          </div>
+          
+          <div class="order-actions">
+            <button 
+              type="button"
+              class="btn-secondary"
+              (click)="trackOrder(order); $event.stopPropagation()"
+              *ngIf="order.trackingNumber">
+              Track Order
+            </button>
+            <button 
+              type="button"
+              class="btn-primary"
+              (click)="reorderItems(order); $event.stopPropagation()">
+              Reorder
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Orders -->
+    <div *ngIf="getPaginatedOrders().length === 0" class="no-orders">
+      <i class="fas fa-box-open"></i>
+      <h3>No orders found</h3>
+      <p>You haven't placed any orders yet or none match your filters.</p>
+      <button type="button" class="btn-primary" routerLink="/products">
+        Start Shopping
+      </button>
+    </div>
+
+    <!-- Pagination -->
+    <nav *ngIf="totalPages > 1" class="pagination">
+      <button 
+        type="button"
+        class="page-btn"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">
+        Previous
+      </button>
+      
+      <span class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+      
+      <button 
+        type="button"
+        class="page-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="onPageChange(currentPage + 1)">
+        Next
+      </button>
+    </nav>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div *ngIf="showOrderDetails && selectedOrder" class="order-details-modal">
+    <div class="modal-overlay" (click)="closeOrderDetails()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Order Details</h2>
+        <button type="button" class="close-btn" (click)="closeOrderDetails()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="order-info-grid">
+          <div class="info-item">
+            <label>Order Number</label>
+            <span>{{ selectedOrder.orderNumber }}</span>
+          </div>
+          <div class="info-item">
+            <label>Date</label>
+            <span>{{ formatDate(selectedOrder.date) }}</span>
+          </div>
+          <div class="info-item">
+            <label>Status</label>
+            <span [class]="getStatusClass(selectedOrder.status)">
+              {{ selectedOrder.status | titlecase }}
+            </span>
+          </div>
+          <div class="info-item">
+            <label>Total</label>
+            <span>{{ formatPrice(selectedOrder.total) }}</span>
+          </div>
+        </div>
+
+        <div class="order-items">
+          <h3>Items</h3>
+          <div class="items-list">
+            <div *ngFor="let item of selectedOrder.items" class="item-row">
+              <img [src]="item.productImage" [alt]="item.productName" class="item-image">
+              <div class="item-details">
+                <h4>{{ item.productName }}</h4>
+                <p>{{ item.variant }}</p>
+                <p>Quantity: {{ item.quantity }}</p>
+              </div>
+              <div class="item-price">
+                {{ formatPrice(item.total) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeOrderDetails()">
+          Close
+        </button>
+        <button 
+          type="button" 
+          class="btn-primary" 
+          (click)="reorderItems(selectedOrder!)"
+          *ngIf="selectedOrder">
+          Reorder Items
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+<div class="not-found-container">
+  <div class="not-found-content">
+    <!-- Animated 404 -->
+    <div class="error-animation">
+      <div class="error-number">
+        <span class="digit">4</span>
+        <span class="digit bounce">0</span>
+        <span class="digit">4</span>
+      </div>
+      <div class="error-illustration">
+        <div class="magnifying-glass">
+          <div class="glass"></div>
+          <div class="handle"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message">
+      <h1>Oops! Page Not Found</h1>
+      <p class="main-message">
+        The page you're looking for doesn't exist or has been moved to a new location.
+      </p>
+      <p class="url-info">
+        <strong>Requested URL:</strong> <code>{{ currentUrl }}</code>
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-primary" (click)="goHome()">
+        <i class="fas fa-home"></i>
+        Go Home
+      </button>
+      <button class="btn btn-secondary" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Go Back
+      </button>
+      <button class="btn btn-tertiary" (click)="searchSite()">
+        <i class="fas fa-search"></i>
+        Search Site
+      </button>
+    </div>
+
+    <!-- Suggested Pages -->
+    <div class="suggested-pages">
+      <h3>Maybe you're looking for:</h3>
+      <div class="page-grid">
+        <a 
+          *ngFor="let page of suggestedPages; trackBy: trackBySuggestedPage"
+          [routerLink]="page.url"
+          class="page-card"
+        >
+          <i [class]="page.icon"></i>
+          <span>{{ page.name }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-section">
+      <h4>Need Help?</h4>
+      <p>If you believe this is an error, please let us know:</p>
+      <button class="report-btn" (click)="reportIssue()">
+        <i class="fas fa-bug"></i>
+        Report Issue
+      </button>
+    </div>
+  </div>
+
+  <!-- Background Elements -->
+  <div class="bg-elements">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+    <div class="floating-shape shape-4"></div>
+  </div>
+</div>

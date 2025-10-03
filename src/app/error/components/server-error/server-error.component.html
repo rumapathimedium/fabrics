@@ -1,0 +1,238 @@
+<div class="server-error-container">
+  <div class="server-error-content">
+    <!-- Error Header -->
+    <div class="error-header">
+      <div class="error-icon">
+        <i [class]="getErrorIcon()"></i>
+      </div>
+      <div class="error-code">{{ errorCode }}</div>
+      <h1>{{ getErrorTitle() }}</h1>
+      <p class="error-description">{{ errorMessage }}</p>
+    </div>
+
+    <!-- Success Message for Report -->
+    <div class="success-message" *ngIf="reportSubmitted">
+      <div class="success-content">
+        <i class="fas fa-check-circle"></i>
+        <h3>Report Submitted Successfully</h3>
+        <p>Thank you for helping us improve! We'll investigate this issue.</p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button 
+        class="btn btn-primary" 
+        (click)="retryRequest()" 
+        [disabled]="!canRetry()"
+        *ngIf="errorCode >= 500"
+      >
+        <i class="fas fa-redo" [class.fa-spin]="retryInProgress"></i>
+        {{ getRetryText() }}
+      </button>
+      
+      <button class="btn btn-secondary" (click)="refreshPage()">
+        <i class="fas fa-sync-alt"></i>
+        Refresh Page
+      </button>
+      
+      <button class="btn btn-tertiary" (click)="goHome()">
+        <i class="fas fa-home"></i>
+        Go Home
+      </button>
+      
+      <button class="btn btn-quaternary" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Go Back
+      </button>
+    </div>
+
+    <!-- Error Details -->
+    <div class="error-details-section">
+      <button 
+        class="details-toggle" 
+        (click)="toggleDetails()" 
+        *ngIf="errorDetails"
+      >
+        <i class="fas" [class.fa-chevron-down]="!showDetails" [class.fa-chevron-up]="showDetails"></i>
+        {{ showDetails ? 'Hide' : 'Show' }} Technical Details
+      </button>
+      
+      <div class="error-details" *ngIf="showDetails && errorDetails">
+        <h4>Technical Information</h4>
+        <div class="details-content">
+          <pre>{{ errorDetails | json }}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Problem -->
+    <div class="report-section">
+      <button 
+        class="report-toggle" 
+        (click)="toggleReportForm()"
+        [class.active]="showReportForm"
+      >
+        <i class="fas fa-bug"></i>
+        Report This Problem
+      </button>
+
+      <!-- Report Form -->
+      <div class="report-form" *ngIf="showReportForm">
+        <form [formGroup]="reportForm" (ngSubmit)="submitReport()">
+          <h4>Help Us Fix This Issue</h4>
+          <p>Your feedback helps us improve our service. Please provide as much detail as possible.</p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Name *</label>
+              <input 
+                type="text" 
+                id="name"
+                formControlName="name"
+                class="form-control"
+                [class.error]="isFieldInvalid('name')"
+                placeholder="Your name"
+              >
+              <div class="field-error" *ngIf="isFieldInvalid('name')">
+                {{ getFieldError('name') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input 
+                type="email" 
+                id="email"
+                formControlName="email"
+                class="form-control"
+                [class.error]="isFieldInvalid('email')"
+                placeholder="your.email@example.com"
+              >
+              <div class="field-error" *ngIf="isFieldInvalid('email')">
+                {{ getFieldError('email') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Problem Description *</label>
+            <textarea 
+              id="description"
+              formControlName="description"
+              class="form-control"
+              [class.error]="isFieldInvalid('description')"
+              rows="4"
+              placeholder="Describe what you were trying to do when this error occurred..."
+            ></textarea>
+            <div class="field-error" *ngIf="isFieldInvalid('description')">
+              {{ getFieldError('description') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="stepsToReproduce">Steps to Reproduce</label>
+            <textarea 
+              id="stepsToReproduce"
+              formControlName="stepsToReproduce"
+              class="form-control"
+              rows="3"
+              placeholder="1. I clicked on...&#10;2. Then I..."
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expectedBehavior">Expected Behavior</label>
+              <textarea 
+                id="expectedBehavior"
+                formControlName="expectedBehavior"
+                class="form-control"
+                rows="2"
+                placeholder="What did you expect to happen?"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="actualBehavior">Actual Behavior</label>
+              <textarea 
+                id="actualBehavior"
+                formControlName="actualBehavior"
+                class="form-control"
+                rows="2"
+                placeholder="What actually happened?"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="browserInfo">Browser Information</label>
+            <textarea 
+              id="browserInfo"
+              formControlName="browserInfo"
+              class="form-control"
+              rows="3"
+              readonly
+            ></textarea>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="includeDetails">
+              <span class="checkmark"></span>
+              Include technical error details in the report
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="btn btn-submit"
+              [disabled]="reportForm.invalid || isSubmittingReport"
+            >
+              <i class="fas fa-paper-plane" *ngIf="!isSubmittingReport"></i>
+              <i class="fas fa-spinner fa-spin" *ngIf="isSubmittingReport"></i>
+              {{ isSubmittingReport ? 'Submitting...' : 'Submit Report' }}
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-cancel"
+              (click)="toggleReportForm()"
+              [disabled]="isSubmittingReport"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Help Information -->
+    <div class="help-info">
+      <h4>What can you do?</h4>
+      <ul>
+        <li><strong>Try again:</strong> This might be a temporary issue</li>
+        <li><strong>Check your connection:</strong> Ensure you have a stable internet connection</li>
+        <li><strong>Contact support:</strong> If the problem persists, reach out to our support team</li>
+        <li><strong>Follow us:</strong> Check our status page for known issues</li>
+      </ul>
+
+      <div class="contact-info">
+        <p><strong>Need immediate help?</strong></p>
+        <p>Email: <a href="mailto:support@clothstore.com">support@clothstore.com</a></p>
+        <p>Phone: <a href="tel:+15551234567">+1 (555) 123-4567</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background Animation -->
+  <div class="bg-animation">
+    <div class="error-particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+  </div>
+</div>

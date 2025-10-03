@@ -1,0 +1,333 @@
+<div class="product-list-container">
+  <!-- Header Section -->
+  <div class="list-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Products</h1>
+        <p class="results-count" *ngIf="!isLoading">
+          {{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'product' : 'products' }} found
+        </p>
+      </div>
+      
+      <div class="header-right">
+        <!-- View Mode Toggle -->
+        <div class="view-toggle">
+          <button 
+            type="button"
+            class="view-btn"
+            [class.active]="viewMode === 'grid'"
+            (click)="onViewModeChange('grid')"
+            aria-label="Grid view">
+            <i class="fas fa-th"></i>
+          </button>
+          <button 
+            type="button"
+            class="view-btn"
+            [class.active]="viewMode === 'list'"
+            (click)="onViewModeChange('list')"
+            aria-label="List view">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+
+        <!-- Sort Dropdown -->
+        <div class="sort-dropdown">
+          <select 
+            [(ngModel)]="selectedSort" 
+            (ngModelChange)="onSortChange()"
+            class="sort-select">
+            <option *ngFor="let option of sortOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Sidebar Filters -->
+    <aside class="filters-sidebar" [class.show-mobile]="showFilters">
+      <div class="filters-header">
+        <h3>Filters</h3>
+        <button 
+          type="button" 
+          class="clear-filters-btn"
+          (click)="clearFilters()"
+          [disabled]="!hasActiveFilters">
+          Clear All
+        </button>
+      </div>
+
+      <!-- Search -->
+      <div class="filter-group">
+        <label for="search" class="filter-label">Search</label>
+        <input
+          id="search"
+          type="text"
+          placeholder="Search products..."
+          class="search-input"
+          [ngModel]="searchTerm"
+          (ngModelChange)="onSearch($event)">
+      </div>
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <label for="category" class="filter-label">Category</label>
+        <select 
+          id="category"
+          [(ngModel)]="selectedCategory" 
+          (ngModelChange)="applyFilters()"
+          class="filter-select">
+          <option value="">All Categories</option>
+          <option *ngFor="let category of categories" [value]="category">
+            {{ category }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Brand Filter -->
+      <div class="filter-group">
+        <label for="brand" class="filter-label">Brand</label>
+        <select 
+          id="brand"
+          [(ngModel)]="selectedBrand" 
+          (ngModelChange)="applyFilters()"
+          class="filter-select">
+          <option value="">All Brands</option>
+          <option *ngFor="let brand of brands" [value]="brand">
+            {{ brand }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Price Range -->
+      <div class="filter-group">
+        <label class="filter-label">Price Range</label>
+        <div class="price-range">
+          <input
+            type="range"
+            min="0"
+            max="1000"
+            [(ngModel)]="priceRange.min"
+            (ngModelChange)="applyFilters()"
+            class="range-input">
+          <input
+            type="range"
+            min="0"
+            max="1000"
+            [(ngModel)]="priceRange.max"
+            (ngModelChange)="applyFilters()"
+            class="range-input">
+          <div class="range-labels">
+            <span>{{ formatPrice(priceRange.min) }}</span>
+            <span>{{ formatPrice(priceRange.max) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Size Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Sizes</label>
+        <div class="checkbox-grid">
+          <label *ngFor="let size of sizes" class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="selectedSizes.includes(size)"
+              (change)="onSizeToggle(size)"
+              class="checkbox-input">
+            <span class="checkbox-custom"></span>
+            {{ size }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Color Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Colors</label>
+        <div class="color-grid">
+          <button
+            *ngFor="let color of colors"
+            type="button"
+            class="color-swatch"
+            [class.selected]="selectedColors.includes(color)"
+            [style.background-color]="color.toLowerCase()"
+            [attr.aria-label]="color"
+            (click)="onColorToggle(color)">
+            <i *ngIf="selectedColors.includes(color)" class="fas fa-check"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Filter Toggle -->
+    <button 
+      type="button"
+      class="mobile-filter-toggle"
+      (click)="toggleFilters()">
+      <i class="fas fa-filter"></i>
+      Filters
+      <span *ngIf="hasActiveFilters" class="filter-badge">{{ hasActiveFilters ? '!' : '' }}</span>
+    </button>
+
+    <!-- Products Grid/List -->
+    <main class="products-main">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading products...</p>
+      </div>
+
+      <!-- No Results -->
+      <div *ngIf="!isLoading && filteredProducts.length === 0" class="no-results">
+        <i class="fas fa-search"></i>
+        <h3>No products found</h3>
+        <p>Try adjusting your search criteria or filters.</p>
+        <button type="button" class="btn-primary" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      </div>
+
+      <!-- Products Grid -->
+      <div 
+        *ngIf="!isLoading && displayedProducts.length > 0"
+        class="products-grid"
+        [class.grid-view]="viewMode === 'grid'"
+        [class.list-view]="viewMode === 'list'">
+        
+        <article 
+          *ngFor="let product of displayedProducts; trackBy: trackByProductId"
+          class="product-card"
+          (click)="viewProduct(product.id)">
+          
+          <div class="product-image">
+            <img 
+              [src]="product.imageUrl" 
+              [alt]="product.name"
+              loading="lazy"
+              class="product-img">
+            
+            <!-- Product badges -->
+            <div class="product-badges">
+              <span *ngIf="product.isNew" class="badge badge-new">New</span>
+              <span *ngIf="product.isSale" class="badge badge-sale">Sale</span>
+              <span *ngIf="!product.inStock" class="badge badge-out-of-stock">Out of Stock</span>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="product-actions">
+              <button type="button" class="action-btn" aria-label="Add to wishlist">
+                <i class="far fa-heart"></i>
+              </button>
+              <button type="button" class="action-btn" aria-label="Quick view">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="product-info">
+            <div class="product-category">{{ product.category }}</div>
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-description" *ngIf="viewMode === 'list'">
+              {{ product.description }}
+            </p>
+            
+            <div class="product-rating">
+              <div class="stars">
+                <i 
+                  *ngFor="let star of getStarArray(product.rating)"
+                  class="star"
+                  [class.fas]="star"
+                  [class.far]="!star">
+                </i>
+              </div>
+              <span class="rating-text">
+                {{ product.rating.toFixed(1) }} ({{ product.reviewCount }})
+              </span>
+            </div>
+
+            <div class="product-meta" *ngIf="viewMode === 'list'">
+              <div class="product-sizes">
+                <span class="meta-label">Sizes:</span>
+                <span class="meta-value">{{ product.sizes.join(', ') }}</span>
+              </div>
+              <div class="product-colors">
+                <span class="meta-label">Colors:</span>
+                <div class="color-dots">
+                  <span 
+                    *ngFor="let color of product.colors.slice(0, 3)"
+                    class="color-dot"
+                    [style.background-color]="color.toLowerCase()"
+                    [title]="color">
+                  </span>
+                  <span *ngIf="product.colors.length > 3" class="color-more">
+                    +{{ product.colors.length - 3 }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="product-price">
+              <span class="current-price">{{ formatPrice(product.price) }}</span>
+              <span 
+                *ngIf="product.originalPrice" 
+                class="original-price">
+                {{ formatPrice(product.originalPrice) }}
+              </span>
+            </div>
+
+            <button 
+              type="button" 
+              class="add-to-cart-btn"
+              [disabled]="!product.inStock">
+              {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <!-- Pagination -->
+      <nav 
+        *ngIf="!isLoading && totalPages > 1" 
+        class="pagination-nav"
+        aria-label="Products pagination">
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button 
+              type="button"
+              class="page-link"
+              (click)="onPageChange(currentPage - 1)"
+              [disabled]="currentPage === 1"
+              aria-label="Previous page">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </li>
+          
+          <li 
+            *ngFor="let page of paginationArray"
+            class="page-item"
+            [class.active]="page === currentPage">
+            <button 
+              type="button"
+              class="page-link"
+              (click)="onPageChange(page)">
+              {{ page }}
+            </button>
+          </li>
+          
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button 
+              type="button"
+              class="page-link"
+              (click)="onPageChange(currentPage + 1)"
+              [disabled]="currentPage === totalPages"
+              aria-label="Next page">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </main>
+  </div>
+</div>

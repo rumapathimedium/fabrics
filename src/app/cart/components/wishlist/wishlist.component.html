@@ -1,0 +1,138 @@
+<!-- Wishlist Header -->
+<div class="wishlist-header">
+  <div class="container">
+    <h1>
+      <i class="fas fa-heart"></i>
+      My Wishlist
+    </h1>
+    <p class="wishlist-summary">{{ wishlistItems.length }} item(s) saved for later</p>
+  </div>
+</div>
+
+<!-- Wishlist Content -->
+<div class="wishlist-content">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Updating wishlist...</span>
+    </div>
+
+    <!-- Empty Wishlist -->
+    <div *ngIf="wishlistItems.length === 0 && !isLoading" class="empty-wishlist">
+      <i class="fas fa-heart-broken empty-icon"></i>
+      <h2>Your wishlist is empty</h2>
+      <p>Save items you love to your wishlist!</p>
+      <button class="continue-shopping-btn" (click)="continueShopping()">
+        <i class="fas fa-search"></i>
+        Discover Products
+      </button>
+    </div>
+
+    <!-- Wishlist Items -->
+    <div *ngIf="wishlistItems.length > 0" class="wishlist-section">
+      <!-- Wishlist Actions -->
+      <div class="wishlist-actions-top">
+        <button class="add-all-btn" (click)="addAllToCart()" [disabled]="isLoading">
+          <i class="fas fa-shopping-cart"></i>
+          Add All to Cart
+        </button>
+        
+        <button class="clear-wishlist-btn" (click)="clearWishlist()" [disabled]="isLoading">
+          <i class="fas fa-trash-alt"></i>
+          Clear Wishlist
+        </button>
+      </div>
+
+      <!-- Wishlist Grid -->
+      <div class="wishlist-grid">
+        <div *ngFor="let item of wishlistItems; trackBy: trackByItemId" class="wishlist-item">
+          <div class="item-image">
+            <img [src]="item.image" [alt]="item.name" />
+            <div class="item-overlay">
+              <button 
+                class="quick-add-btn" 
+                (click)="addToCart(item)"
+                [disabled]="isLoading"
+                title="Add to Cart">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="item-details">
+            <h3 class="item-name">{{ item.name }}</h3>
+            <p class="item-brand">{{ item.brand }}</p>
+            
+            <div class="item-attributes">
+              <span *ngIf="item.size" class="attribute">Size: {{ item.size }}</span>
+              <span *ngIf="item.color" class="attribute">Color: {{ item.color }}</span>
+            </div>
+            
+            <div class="item-price">
+              <span class="current-price">{{ formatPrice(item.price) }}</span>
+              <span *ngIf="item.originalPrice && item.originalPrice > item.price" class="original-price">
+                {{ formatPrice(item.originalPrice) }}
+              </span>
+              <span *ngIf="item.originalPrice && item.originalPrice > item.price" class="discount">
+                {{ ((item.originalPrice - item.price) / item.originalPrice * 100).toFixed(0) }}% OFF
+              </span>
+            </div>
+            
+            <div class="item-availability">
+              <span class="in-stock" *ngIf="item.inStock">
+                <i class="fas fa-check-circle"></i>
+                In Stock
+              </span>
+              <span class="out-of-stock" *ngIf="!item.inStock">
+                <i class="fas fa-times-circle"></i>
+                Out of Stock
+              </span>
+            </div>
+            
+            <div class="item-actions">
+              <button 
+                class="add-to-cart-btn" 
+                (click)="addToCart(item)"
+                [disabled]="isLoading || !item.inStock">
+                <i class="fas fa-shopping-cart"></i>
+                {{ item.inStock ? 'Add to Cart' : 'Notify When Available' }}
+              </button>
+              
+              <button 
+                class="remove-btn" 
+                (click)="removeFromWishlist(item)"
+                [disabled]="isLoading"
+                title="Remove from Wishlist">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="wishlist-actions-bottom">
+        <a routerLink="/cart" class="view-cart-link">
+          <i class="fas fa-shopping-cart"></i>
+          View Cart
+        </a>
+        
+        <button class="continue-shopping-btn-outline" (click)="continueShopping()">
+          <i class="fas fa-arrow-left"></i>
+          Continue Shopping
+        </button>
+      </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    <div *ngIf="wishlistItems.length > 0" class="recommendations-section">
+      <h3>You might also like</h3>
+      <p>Based on items in your wishlist</p>
+      <!-- Add recommendation items here -->
+      <div class="recommendations-placeholder">
+        <p>Recommended products will appear here</p>
+      </div>
+    </div>
+  </div>
+</div>
