@@ -52,6 +52,9 @@ interface SortOption {
 })
 export class ProductListComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private loadingTimeout?: any;
+  private retryCount = 0;
+  private maxRetries = 3;
   
   // State management
   products: Product[] = [];
@@ -98,12 +101,47 @@ export class ProductListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
+    // Reset state
+    this.retryCount = 0;
+    this.currentPage = 1;
+    this.selectedCategory = '';
+    this.selectedBrand = '';
+    this.searchTerm = '';
+    this.selectedSizes = [];
+    this.selectedColors = [];
+    
+    // Load products immediately without setTimeout for initial load
+    this.loadProductsSync();
+    
     this.setupSearch();
     this.setupRouteParams();
   }
 
+  loadProductsSync(): void {
+    this.isLoading = true;
+    
+    try {
+      this.products = this.generateMockProducts();
+      
+      if (this.products.length > 0) {
+        this.extractFilterOptions();
+        this.applyFilters();
+      }
+    } catch (error) {
+      console.error('Error in sync product generation:', error);
+      // Fallback to async loading
+      this.loadProducts();
+    }
+    
+    this.isLoading = false;
+  }
+
   ngOnDestroy(): void {
+    console.log('ProductListComponent ngOnDestroy called');
+    // Clear any pending timeouts
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -131,15 +169,61 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   private loadProducts(): void {
+    console.log('Loading products... (attempt', this.retryCount + 1, 'of', this.maxRetries, ')');
+    
+    // Clear any existing timeout
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+    }
+    
     this.isLoading = true;
     
+    // Reset arrays only on first attempt
+    if (this.retryCount === 0) {
+      this.products = [];
+      this.filteredProducts = [];
+      this.displayedProducts = [];
+    }
+    
     // Mock data - replace with actual service call
-    setTimeout(() => {
-      this.products = this.generateMockProducts();
-      this.extractFilterOptions();
-      this.applyFilters();
+    this.loadingTimeout = setTimeout(() => {
+      // Check if component is still alive
+      if (this.destroy$.closed) {
+        console.log('Component destroyed, skipping product loading');
+        return;
+      }
+      
+      try {
+        console.log('Generating mock products...');
+        const generatedProducts = this.generateMockProducts();
+        console.log('Products generated:', generatedProducts.length);
+        
+        if (generatedProducts.length > 0) {
+          this.products = generatedProducts;
+          this.extractFilterOptions();
+          this.applyFilters();
+          this.retryCount = 0; // Reset retry count on success
+        } else {
+          throw new Error('No products generated');
+        }
+      } catch (error) {
+        console.error('Error generating products:', error);
+        if (this.retryCount < this.maxRetries - 1) {
+          this.retryCount++;
+          console.log('Retrying product generation...');
+          this.loadProducts();
+          return;
+        } else {
+          console.error('Max retries reached, using empty product list');
+          this.products = [];
+          this.filteredProducts = [];
+          this.displayedProducts = [];
+        }
+      }
+      
       this.isLoading = false;
-    }, 1000);
+      console.log('Products loading complete. Filtered:', this.filteredProducts.length, 'Displayed:', this.displayedProducts.length);
+    }, 100); // Reduced timeout significantly
   }
 
   private generateMockProducts(): Product[] {
@@ -218,6 +302,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
+    console.log('Applying filters. Products available:', this.products.length);
     let filtered = [...this.products];
 
     // Search filter
@@ -265,6 +350,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     filtered = this.sortProducts(filtered);
 
     this.filteredProducts = filtered;
+    console.log('Filtered products:', this.filteredProducts.length);
     this.updatePagination();
   }
 
@@ -293,7 +379,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   private updatePagination(): void {
     this.totalPages = Math.ceil(this.filteredProducts.length / this.productsPerPage);
-    this.currentPage = Math.min(this.currentPage, this.totalPages);
+    this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
     
     const startIndex = (this.currentPage - 1) * this.productsPerPage;
     const endIndex = startIndex + this.productsPerPage;

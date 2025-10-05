@@ -3,8 +3,23 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/auth/login',
-    pathMatch: 'full'
+    loadComponent: () => import('./home/components/home/home.component').then(m => m.HomeComponent),
+    title: 'Cloth - Premium Fashion Store'
+  },
+  {
+    path: 'home',
+    loadComponent: () => import('./home/components/home/home.component').then(m => m.HomeComponent),
+    title: 'Cloth - Premium Fashion Store'
+  },
+  {
+    path: 'products',
+    loadComponent: () => import('./products/components/product-list/product-list.component').then(m => m.ProductListComponent),
+    title: 'Products - Cloth'
+  },
+  {
+    path: 'products/:id',
+    loadComponent: () => import('./products/components/product-details/product-details.component').then(m => m.ProductDetailsComponent),
+    title: 'Product Details - Cloth'
   },
   {
     path: 'auth',
@@ -64,5 +79,15 @@ export const routes: Routes = [
         title: 'Wishlist - Cloth'
       }
     ]
+  },
+  {
+    path: 'contact',
+    loadComponent: () => import('./contact/components/contact/contact.component').then(m => m.ContactComponent),
+    title: 'Contact Us - Cloth'
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./core/protected/not-found.component').then(m => m.NotFoundComponent),
+    title: 'Page Not Found - Cloth'
   }
 ];

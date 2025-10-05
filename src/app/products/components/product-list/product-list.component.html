@@ -191,13 +191,13 @@
 
       <!-- Products Grid -->
       <div 
-        *ngIf="!isLoading && displayedProducts.length > 0"
+        *ngIf="!isLoading && filteredProducts.length > 0"
         class="products-grid"
         [class.grid-view]="viewMode === 'grid'"
         [class.list-view]="viewMode === 'list'">
         
         <article 
-          *ngFor="let product of displayedProducts; trackBy: trackByProductId"
+          *ngFor="let product of displayedProducts.length > 0 ? displayedProducts : filteredProducts; trackBy: trackByProductId"
           class="product-card"
           (click)="viewProduct(product.id)">
           
@@ -237,7 +237,7 @@
               <div class="stars">
                 <i 
                   *ngFor="let star of getStarArray(product.rating)"
-                  class="star"
+                  class="star fa-star"
                   [class.fas]="star"
                   [class.far]="!star">
                 </i>
