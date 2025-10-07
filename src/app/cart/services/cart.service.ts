@@ -47,6 +47,9 @@ export interface CartSummary {
   providedIn: 'root'
 })
 export class CartService {
+  // Base64 encoded placeholder image
+  private placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2U5ZWNlZiIvPgogIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iIGZpbGw9IiM2Yzc1N2QiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiI+UHJvZHVjdCBJbWFnZTwvdGV4dD4KPC9zdmc+';
+
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   private wishlistItemsSubject = new BehaviorSubject<WishlistItem[]>([]);
   private totalAmountSubject = new BehaviorSubject<number>(0);
@@ -60,7 +63,7 @@ export class CartService {
       brand: 'ClothBrand',
       price: 29.99,
       originalPrice: 39.99,
-      image: 'assets/images/tshirt1.jpg',
+      image: this.placeholderImage,
       sku: 'CT001',
       inStock: true,
       category: 'T-Shirts'
@@ -71,7 +74,7 @@ export class CartService {
       brand: 'DenimCo',
       price: 79.99,
       originalPrice: 99.99,
-      image: 'assets/images/jeans1.jpg',
+      image: this.placeholderImage,
       sku: 'DJ001',
       inStock: true,
       category: 'Jeans'
@@ -81,7 +84,7 @@ export class CartService {
       name: 'Summer Dress',
       brand: 'FashionHub',
       price: 89.99,
-      image: 'assets/images/dress1.jpg',
+      image: this.placeholderImage,
       sku: 'SD001',
       inStock: false,
       category: 'Dresses'

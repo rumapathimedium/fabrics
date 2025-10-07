@@ -203,8 +203,9 @@
           
           <div class="product-image">
             <img 
-              [src]="product.imageUrl" 
+              [src]="product.imageUrl || '/assets/placeholder-product.svg'" 
               [alt]="product.name"
+              (error)="onImageError($event)"
               loading="lazy"
               class="product-img">
             
@@ -217,10 +218,10 @@
 
             <!-- Quick actions -->
             <div class="product-actions">
-              <button type="button" class="action-btn" aria-label="Add to wishlist">
+              <button type="button" class="action-btn" aria-label="Add to wishlist" (click)="addToWishlist(product); $event.stopPropagation()">
                 <i class="far fa-heart"></i>
               </button>
-              <button type="button" class="action-btn" aria-label="Quick view">
+              <button type="button" class="action-btn" aria-label="Quick view" (click)="viewProductDetails(product.id); $event.stopPropagation()">
                 <i class="far fa-eye"></i>
               </button>
             </div>

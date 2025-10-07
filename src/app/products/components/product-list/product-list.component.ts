@@ -56,6 +56,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private retryCount = 0;
   private maxRetries = 3;
   
+  // Base64 encoded placeholder image
+  private placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2U5ZWNlZiIvPgogIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iIGZpbGw9IiM2Yzc1N2QiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiI+UHJvZHVjdCBJbWFnZTwvdGV4dD4KPC9zdmc+';
+  
   // State management
   products: Product[] = [];
   filteredProducts: Product[] = [];
@@ -231,11 +234,26 @@ export class ProductListComponent implements OnInit, OnDestroy {
     const categories = ['T-Shirts', 'Jeans', 'Dresses', 'Sweaters', 'Shoes', 'Accessories'];
     const brands = ['Brand A', 'Brand B', 'Brand C', 'Brand D', 'Brand E'];
     
+    // Map categories to actual image paths using data URIs
+    const categoryMap: {[key: string]: string} = {
+      'T-Shirts': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23e3f2fd%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2250%22%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%231976d2%22%20rx%3D%2210%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EShirt%3C/text%3E%3C/svg%3E',
+      'Jeans': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23e8f5e8%22/%3E%3Crect%20x%3D%22120%22%20y%3D%2230%22%20width%3D%22160%22%20height%3D%22240%22%20fill%3D%22%231565c0%22%20rx%3D%2215%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EJeans%3C/text%3E%3C/svg%3E',
+      'Dresses': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23fce4ec%22/%3E%3Cpath%20d%3D%22M%20150%2050%20Q%20200%2030%20250%2050%20L%20280%20250%20Q%20200%20270%20120%20250%20Z%22%20fill%3D%22%23e91e63%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EDress%3C/text%3E%3C/svg%3E',
+      'Sweaters': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23e3f2fd%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2250%22%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%231976d2%22%20rx%3D%2210%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3ESweater%3C/text%3E%3C/svg%3E',
+      'Shoes': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23fff3e0%22/%3E%3Cellipse%20cx%3D%22200%22%20cy%3D%22150%22%20rx%3D%22100%22%20ry%3D%2230%22%20fill%3D%22%23424242%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22100%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23424242%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EShoes%3C/text%3E%3C/svg%3E',
+      'Accessories': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23fff8e1%22/%3E%3Ccircle%20cx%3D%22200%22%20cy%3D%22150%22%20r%3D%2250%22%20fill%3D%22%23ff9800%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EAccessory%3C/text%3E%3C/svg%3E'
+    };
+    
+    const getImagePath = (category: string) => {
+      return categoryMap[category] || categoryMap['T-Shirts'];
+    };
+    
     for (let i = 1; i <= 50; i++) {
       const category = categories[Math.floor(Math.random() * categories.length)];
       const brand = brands[Math.floor(Math.random() * brands.length)];
       const price = Math.floor(Math.random() * 200) + 20;
       const originalPrice = Math.random() > 0.7 ? price + Math.floor(Math.random() * 50) : undefined;
+      const mainImage = getImagePath(category);
       
       mockProducts.push({
         id: `product-${i}`,
@@ -243,11 +261,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
         description: `High-quality ${category.toLowerCase()} perfect for any occasion. Made with premium materials.`,
         price,
         originalPrice,
-        imageUrl: `https://picsum.photos/300/400?random=${i}`,
+        imageUrl: mainImage,
         images: [
-          `https://picsum.photos/300/400?random=${i}`,
-          `https://picsum.photos/300/400?random=${i + 100}`,
-          `https://picsum.photos/300/400?random=${i + 200}`
+          mainImage,
+          categoryMap['T-Shirts'],
+          categoryMap['Jeans']
         ],
         category,
         brand,
@@ -479,5 +497,24 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.priceRange.min !== 0 ||
       this.priceRange.max !== 1000
     );
+  }
+
+  viewProductDetails(productId: string): void {
+    this.router.navigate(['/products', productId]);
+  }
+
+  addToWishlist(product: any): void {
+    // TODO: Implement wishlist functionality
+    console.log('Added to wishlist:', product.name);
+    // You can add a notification service here
+  }
+  
+  // Image error handler
+  onImageError(event: any): void {
+    const img = event.target as HTMLImageElement;
+    if (img && img.src !== '/assets/placeholder-product.svg') {
+      console.log('Image failed to load, using fallback:', img.src);
+      img.src = '/assets/placeholder-product.svg';
+    }
   }
 }

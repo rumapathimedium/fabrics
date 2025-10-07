@@ -78,6 +78,9 @@ interface Review {
 export class ProductDetailsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   
+  // Base64 encoded placeholder image
+  private placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2U5ZWNlZiIvPgogIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iIGZpbGw9IiM2Yzc1N2QiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiI+UHJvZHVjdCBJbWFnZTwvdGV4dD4KPC9zdmc+';
+  
   // Product data
   product: Product | null = null;
   relatedProducts: Product[] = [];
@@ -111,42 +114,42 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.pipe(
-      switchMap(params => {
-        const productId = params['id'];
-        return this.loadProduct(productId);
-      }),
-      takeUntil(this.destroy$)
-    ).subscribe();
+    // Simplified approach
+    this.route.params.subscribe(params => {
+      const productId = params['id'];
+      if (productId) {
+        this.loadProductSync(productId);
+      }
+    });
+  }
+
+  private loadProductSync(productId: string): void {
+    this.isLoading = true;
+    this.notFound = false;
+    
+    try {
+      const mockProduct = this.generateMockProduct(productId);
+      
+      if (mockProduct) {
+        this.product = mockProduct;
+        this.loadRelatedProducts();
+        this.loadReviews();
+        this.checkWishlistStatus();
+        this.isLoading = false;
+      } else {
+        this.notFound = true;
+        this.isLoading = false;
+      }
+    } catch (error) {
+      console.error('Error generating product:', error);
+      this.notFound = true;
+      this.isLoading = false;
+    }
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private loadProduct(productId: string): Promise<void> {
-    this.isLoading = true;
-    this.notFound = false;
-    
-    return new Promise((resolve) => {
-      // Mock API call - replace with actual service
-      setTimeout(() => {
-        const mockProduct = this.generateMockProduct(productId);
-        
-        if (mockProduct) {
-          this.product = mockProduct;
-          this.loadRelatedProducts();
-          this.loadReviews();
-          this.checkWishlistStatus();
-        } else {
-          this.notFound = true;
-        }
-        
-        this.isLoading = false;
-        resolve();
-      }, 1000);
-    });
   }
 
   private generateMockProduct(id: string): Product | null {
@@ -162,30 +165,58 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     const price = Math.floor(Math.random() * 200) + 20;
     const originalPrice = Math.random() > 0.7 ? price + Math.floor(Math.random() * 50) : undefined;
 
+    // Map categories to actual image paths using data URIs
+    const categoryMap: {[key: string]: string} = {
+      'T-Shirts': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23e3f2fd%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2250%22%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%231976d2%22%20rx%3D%2210%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EShirt%3C/text%3E%3C/svg%3E',
+      'Jeans': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23e8f5e8%22/%3E%3Crect%20x%3D%22120%22%20y%3D%2230%22%20width%3D%22160%22%20height%3D%22240%22%20fill%3D%22%231565c0%22%20rx%3D%2215%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EJeans%3C/text%3E%3C/svg%3E',
+      'Dresses': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23fce4ec%22/%3E%3Cpath%20d%3D%22M%20150%2050%20Q%20200%2030%20250%2050%20L%20280%20250%20Q%20200%20270%20120%20250%20Z%22%20fill%3D%22%23e91e63%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EDress%3C/text%3E%3C/svg%3E',
+      'Sweaters': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23e3f2fd%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2250%22%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%231976d2%22%20rx%3D%2210%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3ESweater%3C/text%3E%3C/svg%3E',
+      'Shoes': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23fff3e0%22/%3E%3Cellipse%20cx%3D%22200%22%20cy%3D%22150%22%20rx%3D%22100%22%20ry%3D%2230%22%20fill%3D%22%23424242%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22100%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23424242%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EShoes%3C/text%3E%3C/svg%3E',
+      'Accessories': 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23fff8e1%22/%3E%3Ccircle%20cx%3D%22200%22%20cy%3D%22150%22%20r%3D%2250%22%20fill%3D%22%23ff9800%22/%3E%3Ctext%20x%3D%22200%22%20y%3D%22160%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22bold%22%3EAccessory%3C/text%3E%3C/svg%3E'
+    };
+    
+    const getImagePath = (category: string) => {
+      return categoryMap[category] || categoryMap['T-Shirts'];
+    };
+
+    const mainImage = getImagePath(category);
+    const alternateImages = [
+      categoryMap['T-Shirts'],
+      categoryMap['Jeans'], 
+      categoryMap['Dresses']
+    ];
+
     return {
       id,
-      name: `Premium ${category.slice(0, -1)}`,
+      name: `Premium ${category.slice(0, -1)} ${id}`,
       description: `High-quality ${category.toLowerCase()} perfect for any occasion.`,
-      longDescription: `This premium ${category.toLowerCase()} combines style, comfort, and durability in one exceptional piece. Crafted from the finest materials and designed with attention to detail, it's perfect for both casual and formal occasions. The versatile design makes it a must-have addition to your wardrobe.`,
+      longDescription: `This premium ${category.toLowerCase()} is crafted with the finest materials and attention to detail. Perfect for both casual and formal occasions, it combines comfort with style. The modern design and superior craftsmanship make it a must-have addition to your wardrobe.`,
       price,
       originalPrice,
-      imageUrl: `https://picsum.photos/600/800?random=${id}`,
+      imageUrl: mainImage,
       images: [
-        `https://picsum.photos/600/800?random=${id}`,
-        `https://picsum.photos/600/800?random=${id}1`,
-        `https://picsum.photos/600/800?random=${id}2`,
-        `https://picsum.photos/600/800?random=${id}3`,
-        `https://picsum.photos/600/800?random=${id}4`
+        mainImage,
+        ...alternateImages
       ],
       category,
       brand,
       rating: Math.floor(Math.random() * 2) + 3 + Math.random(),
       reviewCount: Math.floor(Math.random() * 200) + 5,
-      sizes: this.generateSizes(),
-      colors: this.generateColors(),
-      tags: ['comfortable', 'stylish', 'premium', 'versatile'],
+      sizes: [
+        { size: 'XS', available: true, stockCount: 5 },
+        { size: 'S', available: true, stockCount: 10 },
+        { size: 'M', available: true, stockCount: 15 },
+        { size: 'L', available: true, stockCount: 8 },
+        { size: 'XL', available: true, stockCount: 3 }
+      ],
+      colors: [
+        { name: 'Black', hex: '#000000', available: true, images: [mainImage] },
+        { name: 'White', hex: '#FFFFFF', available: true, images: [mainImage] },
+        { name: 'Navy', hex: '#000080', available: true, images: [mainImage] }
+      ],
+      tags: ['premium', 'comfortable', 'stylish'],
       inStock: true,
-      stockCount: Math.floor(Math.random() * 50) + 5,
+      stockCount: 50,
       isNew: Math.random() > 0.8,
       isSale: !!originalPrice,
       isFeatured: Math.random() > 0.9,
@@ -193,64 +224,27 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         'Material': '100% Premium Cotton',
         'Fit': 'Regular Fit',
         'Origin': 'Made in USA',
-        'Care': 'Machine Washable',
-        'Season': 'All Season'
+        'Weight': '180 GSM'
       },
-      materials: ['100% Premium Cotton', 'Reinforced Stitching', 'Fade-Resistant Dyes'],
-      careInstructions: [
-        'Machine wash cold with like colors',
-        'Tumble dry low heat',
-        'Iron on medium heat if needed',
-        'Do not bleach',
-        'Do not dry clean'
-      ],
+      materials: ['100% Cotton', 'Pre-shrunk fabric'],
+      careInstructions: ['Machine wash cold', 'Tumble dry low', 'Do not bleach'],
       shippingInfo: {
         standard: { price: 5.99, days: '5-7 business days' },
         express: { price: 12.99, days: '2-3 business days' },
         overnight: { price: 24.99, days: '1 business day' }
       },
-      returnPolicy: '30-day return policy. Items must be in original condition with tags attached.',
+      returnPolicy: '30-day return policy. Items must be unworn and in original condition.',
       createdAt: new Date()
     };
   }
 
-  private generateSizes(): ProductSize[] {
-    const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-    return sizes.map(size => ({
-      size,
-      available: Math.random() > 0.2,
-      stockCount: Math.floor(Math.random() * 10) + 1
-    }));
-  }
-
-  private generateColors(): ProductColor[] {
-    const colors = [
-      { name: 'Black', hex: '#000000' },
-      { name: 'White', hex: '#FFFFFF' },
-      { name: 'Navy', hex: '#1a365d' },
-      { name: 'Gray', hex: '#718096' },
-      { name: 'Red', hex: '#e53e3e' }
-    ];
-
-    return colors.slice(0, Math.floor(Math.random() * 3) + 2).map(color => ({
-      ...color,
-      available: Math.random() > 0.3,
-      images: [
-        `https://picsum.photos/600/800?random=${color.name}1`,
-        `https://picsum.photos/600/800?random=${color.name}2`
-      ]
-    }));
-  }
-
   private loadRelatedProducts(): void {
-    // Mock related products
     this.relatedProducts = Array.from({ length: 4 }, (_, i) => 
-      this.generateMockProduct(`related-${i}`)!
+      this.generateMockProduct(`related-${i + 1}`)!
     );
   }
 
   private loadReviews(): void {
-    // Mock reviews
     this.reviews = Array.from({ length: 8 }, (_, i) => ({
       id: `review-${i}`,
       userId: `user-${i}`,
@@ -262,12 +256,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       helpful: Math.floor(Math.random() * 20),
       verified: Math.random() > 0.3,
       createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-      images: Math.random() > 0.7 ? [`https://picsum.photos/200/200?random=review${i}`] : undefined
+      images: Math.random() > 0.7 ? [this.placeholderImage] : undefined
     }));
   }
 
   private checkWishlistStatus(): void {
-    // Mock wishlist check
     this.isInWishlist = Math.random() > 0.5;
   }
 
@@ -281,10 +274,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   onColorSelect(color: string): void {
     this.selectedColor = color;
-    // Update images based on color selection
-    const colorData = this.product?.colors.find(c => c.name === color);
-    if (colorData && colorData.images.length > 0) {
-      // In a real app, you'd update the product images
+    const selectedColorData = this.product?.colors?.find(c => c.name === color);
+    if (selectedColorData && selectedColorData.images.length > 0) {
       this.selectedImageIndex = 0;
     }
   }
@@ -295,38 +286,52 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   onQuantityChange(change: number): void {
     const newQuantity = this.quantity + change;
-    if (newQuantity >= 1 && newQuantity <= (this.product?.stockCount || 1)) {
+    if (newQuantity >= 1 && newQuantity <= this.maxQuantity) {
       this.quantity = newQuantity;
     }
   }
 
+  get selectedSizeData(): ProductSize | undefined {
+    return this.product?.sizes?.find(s => s.size === this.selectedSize);
+  }
+
   onTabChange(tab: string): void {
-    if (['description', 'specifications', 'reviews', 'shipping'].includes(tab)) {
-      this.activeTab = tab as 'description' | 'specifications' | 'reviews' | 'shipping';
-    }
+    this.activeTab = tab as 'description' | 'specifications' | 'reviews' | 'shipping';
   }
 
   async onAddToCart(): Promise<void> {
-    if (!this.product || !this.selectedSize || !this.selectedColor) {
+    if (!this.product) return;
+
+    // Validate selection
+    if (this.hasSizes && !this.selectedSize) {
+      alert('Please select a size');
+      return;
+    }
+
+    if (this.hasColors && !this.selectedColor) {
+      alert('Please select a color');
       return;
     }
 
     this.isAddingToCart = true;
-    
+
     try {
       // Mock API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Show success message or redirect
-      console.log('Added to cart:', {
-        productId: this.product.id,
+      console.log('Product added to cart:', {
+        id: this.product.id,
+        name: this.product.name,
         size: this.selectedSize,
         color: this.selectedColor,
-        quantity: this.quantity
+        quantity: this.quantity,
+        price: this.product.price
       });
-      
+
+      alert('Product added to cart!');
     } catch (error) {
-      console.error('Failed to add to cart:', error);
+      console.error('Error adding to cart:', error);
+      alert('Failed to add product to cart');
     } finally {
       this.isAddingToCart = false;
     }
@@ -336,23 +341,14 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     if (!this.product) return;
 
     try {
-      // Mock API call
       await new Promise(resolve => setTimeout(resolve, 500));
+      
       this.isInWishlist = !this.isInWishlist;
+      console.log(`Product ${this.isInWishlist ? 'added to' : 'removed from'} wishlist:`, this.product.name);
     } catch (error) {
-      console.error('Failed to toggle wishlist:', error);
+      console.error('Error updating wishlist:', error);
+      alert('Failed to update wishlist');
     }
-  }
-
-  onBuyNow(): void {
-    // Add to cart and redirect to checkout
-    this.onAddToCart().then(() => {
-      this.router.navigate(['/checkout']);
-    });
-  }
-
-  onShowMoreReviews(): void {
-    this.showAllReviews = true;
   }
 
   onReviewHelpful(reviewId: string): void {
@@ -362,41 +358,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatPrice(price: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
+  onShowMoreReviews(): void {
+    this.showAllReviews = true;
   }
 
-  getStarArray(rating: number): boolean[] {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(i <= Math.floor(rating));
-    }
-    return stars;
-  }
-
-  getDisplayedReviews(): Review[] {
+  get displayedReviews(): Review[] {
     return this.showAllReviews ? this.reviews : this.reviews.slice(0, this.reviewsToShow);
-  }
-
-  get canAddToCart(): boolean {
-    return !!(
-      this.product?.inStock &&
-      this.selectedSize &&
-      this.selectedColor &&
-      this.quantity > 0 &&
-      !this.isAddingToCart
-    );
-  }
-
-  get selectedSizeData(): ProductSize | undefined {
-    return this.product?.sizes?.find(s => s.size === this.selectedSize);
-  }
-
-  get selectedColorData(): ProductColor | undefined {
-    return this.product?.colors?.find(c => c.name === this.selectedColor);
   }
 
   get hasColors(): boolean {
@@ -410,11 +377,54 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   get maxQuantity(): number {
     const sizeStock = this.selectedSizeData?.stockCount || 0;
     const totalStock = this.product?.stockCount || 0;
-    return Math.min(sizeStock, totalStock, 10); // Max 10 per order
+    return Math.min(sizeStock, totalStock, 10);
   }
 
   get discountPercentage(): number {
     if (!this.product?.originalPrice) return 0;
     return Math.round(((this.product.originalPrice - this.product.price) / this.product.originalPrice) * 100);
+  }
+
+  getStarArray(rating: number): boolean[] {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(i <= Math.floor(rating));
+    }
+    return stars;
+  }
+
+  formatPrice(price: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(price);
+  }
+
+  get canAddToCart(): boolean {
+    if (!this.product?.inStock) return false;
+    if (this.hasSizes && !this.selectedSize) return false;
+    if (this.hasColors && !this.selectedColor) return false;
+    return true;
+  }
+
+  onBuyNow(): void {
+    if (!this.canAddToCart) return;
+    
+    // For now, just add to cart and redirect to checkout
+    this.onAddToCart().then(() => {
+      this.router.navigate(['/checkout']);
+    });
+  }
+
+  getDisplayedReviews(): Review[] {
+    return this.showAllReviews ? this.reviews : this.reviews.slice(0, this.reviewsToShow);
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img && img.src !== '/assets/placeholder-product.svg') {
+      console.log('Image failed to load, using fallback:', img.src);
+      img.src = '/assets/placeholder-product.svg';
+    }
   }
 }

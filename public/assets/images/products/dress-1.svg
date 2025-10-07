@@ -1,0 +1,18 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fce4ec;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8bbd9;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="floral" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="3" fill="#e91e63" opacity="0.3"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="url(#dressGrad)"/>
+  <path d="M 150 50 Q 200 30 250 50 L 280 250 Q 200 270 120 250 Z" fill="#e91e63"/>
+  <path d="M 160 60 Q 200 45 240 60 L 270 240 Q 200 255 130 240 Z" fill="url(#floral)"/>
+  <rect x="180" y="70" width="40" height="60" fill="#ffffff" rx="5"/>
+  <text x="200" y="105" text-anchor="middle" dy=".3em" fill="#e91e63" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Summer Dress</text>
+  <circle cx="185" cy="80" r="2" fill="#e91e63"/>
+  <circle cx="215" cy="80" r="2" fill="#e91e63"/>
+</svg>

@@ -10,14 +10,17 @@ import { RouterModule } from '@angular/router';
   styleUrl: './banner.component.scss'
 })
 export class BannerComponent implements OnInit, OnDestroy {
+  // Base64 encoded placeholder image
+  private placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2U5ZWNlZiIvPgogIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iIGZpbGw9IiM2Yzc1N2QiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiI+UHJvZHVjdCBJbWFnZTwvdGV4dD4KPC9zdmc+';
+
   bannerSlides: BannerSlide[] = [
     {
       id: 1,
       title: 'New Collection 2025',
       subtitle: 'Discover the Latest Fashion Trends',
       description: 'Explore our carefully curated collection featuring the hottest styles and timeless classics.',
-      image: '/assets/images/banner/slide-1.jpg',
-      mobileImage: '/assets/images/banner/slide-1-mobile.jpg',
+      image: this.placeholderImage,
+      mobileImage: this.placeholderImage,
       buttonText: 'Shop Collection',
       buttonLink: '/products',
       backgroundColor: '#667eea',
@@ -29,8 +32,8 @@ export class BannerComponent implements OnInit, OnDestroy {
       title: 'Summer Sale',
       subtitle: 'Up to 50% Off Selected Items',
       description: 'Beat the heat with our amazing summer deals. Limited time offer on premium clothing.',
-      image: '/assets/images/banner/slide-2.jpg',
-      mobileImage: '/assets/images/banner/slide-2-mobile.jpg',
+      image: this.placeholderImage,
+      mobileImage: this.placeholderImage,
       buttonText: 'Shop Sale',
       buttonLink: '/products?sale=true',
       backgroundColor: '#ff6b6b',
@@ -42,8 +45,8 @@ export class BannerComponent implements OnInit, OnDestroy {
       title: 'Premium Quality',
       subtitle: 'Handcrafted with Care',
       description: 'Experience the finest materials and craftsmanship in every piece we create.',
-      image: '/assets/images/banner/slide-3.jpg',
-      mobileImage: '/assets/images/banner/slide-3-mobile.jpg',
+      image: this.placeholderImage,
+      mobileImage: this.placeholderImage,
       buttonText: 'Learn More',
       buttonLink: '/about',
       backgroundColor: '#28a745',
@@ -206,6 +209,11 @@ export class BannerComponent implements OnInit, OnDestroy {
         this.goToSlide(this.bannerSlides.length - 1);
         break;
     }
+  }
+  
+  // Image error handler
+  onImageError(event: any): void {
+    event.target.src = this.placeholderImage;
   }
 }
 

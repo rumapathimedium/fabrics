@@ -16,7 +16,11 @@
           
           <!-- Product Image -->
           <div class="product-image">
-            <img [src]="product.image" [alt]="product.name" loading="lazy">
+            <img [src]="imageService.getImagePath(product.image)" 
+                 [alt]="product.name" 
+                 (error)="onImageError($event)"
+                 (load)="onImageLoad($event)"
+                 loading="lazy">
             <div class="product-overlay">
               <button class="quick-view-btn" [routerLink]="['/products', product.id]">
                 <i class="fas fa-eye"></i>
@@ -98,7 +102,10 @@
            [routerLink]="category.link"
            class="category-card">
           <div class="category-image">
-            <img [src]="category.image" [alt]="category.name" loading="lazy">
+            <img [src]="imageService.getImagePath(category.image)" 
+                 [alt]="category.name" 
+                 (error)="onImageError($event)"
+                 loading="lazy">
             <div class="category-overlay"></div>
           </div>
           <div class="category-content">

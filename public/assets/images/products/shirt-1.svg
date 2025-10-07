@@ -1,0 +1,16 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bbdefb;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#shirtGrad)"/>
+  <rect x="100" y="50" width="200" height="200" fill="#1976d2" rx="10"/>
+  <rect x="120" y="70" width="160" height="80" fill="#ffffff" rx="5"/>
+  <text x="200" y="115" text-anchor="middle" dy=".3em" fill="#1976d2" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Classic Shirt</text>
+  <circle cx="150" cy="80" r="3" fill="#1976d2"/>
+  <circle cx="250" cy="80" r="3" fill="#1976d2"/>
+  <rect x="180" y="160" width="40" height="60" fill="#ffffff" rx="3"/>
+  <rect x="185" y="165" width="30" height="50" fill="#e3f2fd" rx="2"/>
+</svg>
